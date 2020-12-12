@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8"> 
+    <title>Umo Space v51 by KaneTheMediocre</title>
+    <style></style>
+</head>
+
+
+
+<body>
+    <canvas id="gameCanvas" width="1600" height="900"></canvas>
+    <script>
+        // declare variables
+        const FPS = 30;
+        var canvas, context;
+        canvas = document.getElementById("gameCanvas"); //canvas is the draw sauce.
+        context = canvas.getContext("2d");
+		var thrustmultiplier = 1; //Adjusts thruster sensitivity
+		var launchmultiplier = 1; //not really used
+		var navtarget = 0; // Compass points to planets[navtarget]
+		var shiptarget = 1; // Targets ships[1]
+		var energy = 50;
+		var thruster = 50;
+		var money = 10000;
+		var drawdistance = Math.sqrt(canvas.width*canvas.width/4+canvas.height*canvas.height/4)+12;
+		var w1 = 1; //Presence or weapons, upgrades etc.
+		var w2 = 0; //Upgraded weapons have values >1
+		var w3 = 0; 
+		var w4 = 0; 
+		var w5 = 1;
+		var w6 = 0;
+		var w7 = 0;
+		var w8 = 0;
+		var w9 = 0;
+		var w0 = 0;
+		var a1 = 0; //armor upgrades
+		var s1 = 0; //Shield upgrades
+		var wep = 1; //Currently selected weapon
+		var moused = 0; //Direction currently indicated by mouse
+		var shop = 0; //O indicates not shopping, 1 indicates a shop, 2 might indicate a different shop....
+        var shopitem = 0; //Indicates item selected in the shop.
+		var beamon = 0;
+        setInterval(update, 1000 / FPS);// set up interval (game loop)
+		function drawpolarpoly(px,py,thetalist, radiuslist, size, color, dir){
+		//requires, does not verify, that thetalist.length==radiuslist.length, thetalist.length>2, color be valid
+			var fx = px + Math.cos(dir+thetalist[0])*size*radiuslist[0];
+			var fy = py + Math.sin(dir+thetalist[0])*size*radiuslist[0];
+			context.fillStyle = color; //Now actual drawing of the things
+			context.beginPath();
+			context.moveTo(fx, fy); 
+			i = thetalist.length;
+			while(i>0){
+				i=i-1;
+				var ix = px + Math.cos(dir+thetalist[i])*size*radiuslist[i];
+				var iy = py + Math.sin(dir+thetalist[i])*size*radiuslist[i];
+				context.lineTo(ix, iy);
+			}
+			context.fill();	
+		}
+		function draworthopoly(px,py, xlist, ylist, size, color, dir){//Not really useful, because this
+			var fx = px + xlist[0]*size; //needs to be transformed to polar coords to rotate it anyways
+			var fy = py + ylist[0]*size;
+			context.fillStyle = color; //Now actual drawing of the things
+			context.beginPath();
+			context.moveTo(fx, fy); 
+			i = xlist.length;
+			while(i>0){
+				i=i-1;
+				var ix = px + xlist[i]*size;
+				var iy = py + ylist[i]*size;
+				context.lineTo(ix, iy);
+			}
+			context.fill();	
+			}
+		function randpolarpoly(sides, minradius){//Polygons will be symmetrical, vertices evenly spaced
+			spacing = 2*Math.PI/sides; //Needs at least 3.  Or 4, seems not to work right with odd numbers
+			firstradius = Math.random()*(1-minradius) + minradius; //Minimum radius to make things less spiky
+			vertices = [[0],[firstradius]];//Array of arrays, first element is list of angles, 2nd element is list of radii.
+			i = 0;
+			while (i<sides/2){ //First half is random
+				i=i+1;
+				vertices[0].push(spacing*i);
+				vertices[1].push(Math.random()*(1-minradius) + minradius);
+				}
+			while (i<sides){ //2nd half matches first
+				i=i+1;
+				vertices[0].push(spacing*i);
+				vertices[1].push(vertices[1][sides-i]);
+				}
+			return vertices; 
+			}
+		function randvowel(){
+			var vowels = "aeyuio";
+			var vindex = Math.floor(Math.random()*vowels.length);
+			return vowels[vindex];
+			}
+		function randconsonant(){
+			var consonants = "zxcvbnmsdfghjklqwrtyp";
+			var cindex = Math.floor(Math.random()*consonants.length);
+			return consonants[cindex];
+			}
+		function randname(namelength){
+			var lastchartype = Math.floor(Math.random()*2); //0 for consonant, 1 for vowel;
+			var lastchartype2 = Math.floor(Math.random()*2); //2nd to last....
+			var thischartype = Math.floor(Math.random()*2); //0 for consonant, 1 for vowel;
+			var thename = "";
+			if (lastchartype2 == 0){thename=thename+randconsonant();}else{thename=thename+randvowel();}
+			if (lastchartype == 0){thename=thename+randconsonant();}else{thename=thename+randvowel();}
+			i = namelength;
+			while (i>2){
+				i=i-1;
+				if (lastchartype == lastchartype2){ //if last two characters are same type,
+					if (lastchartype == 0){thischartype = 1;}else{thischartype = 0;} //make other type
+					}else {thischartype = Math.floor(Math.random()*2);}//otherwise pick randomly
+				if (thischartype == 0){thename=thename+randconsonant();}else{thename=thename+randvowel();}
+				lastchartype2 = lastchartype; //Keep track of last two characters
+				lastchartype = thischartype; //so we can not have 3 vowels or 3 consonants sequentially
+				}
+			return thename;
+			}
+		var testname = randname(8);
+			
+		
+		class Umo { //Universal Moving Object
+		constructor(xxx, yyy, sss, ccc) {
+			this.name = "Cactus Fantastico";
+			this.type = "unspecified"; //I might use this to identify different
+			this.x = xxx; //x
+			this.y = yyy; //y
+			this.c = ccc; //color
+			this.s = sss; //size
+			this.d = 0; // direction
+			this.vx = 0; //start with 0 velocity 
+			this.vy = 0;
+			this.vd = 0; //0 rotation 
+			this.m = this.s*this.s*this.s; //So far only used by gravitate function.
+			this.thrust = 0;
+			this.deadtime = 0;   //0 is alive.  N is dead for N more frames.
+			this.hp = 200 ; //This is used for destructible entities to track health
+			this.maxhp = 200;
+			this.timer = 0; //Used for bombs.  Could maybe be consolidated with deadtime.
+			this.hurt = 20 ; //used for bombs and planets.  Determines damage.
+			this.boombuff = 1 ; // used for bombs.  Multiplies blast radius
+			this.shield = 100; //for ships, mostly
+			this.maxshield = 100; 
+			this.shieldregen = 1;
+			this.polyradius = [1,1,1]; //Default values are the triangle originally
+			this.polytheta = [0,0.8*Math.PI,1.2*Math.PI];	//used for ship drawing
+			}
+		update1(){ //Pure motion update.
+			this.x = this.x + this.vx;
+			this.y = this.y + this.vy;
+			this.d = this.d + this.vd;
+			}
+		distance(relation){
+			var dx = this.x - relation.x; 
+			var dy = this.y - relation.y;
+			return Math.sqrt(((dx)*(dx) + (dy)*(dy)));	
+		}
+		deltav(relation){ //returns magnitude only
+			var dvx = this.vx - relation.vx; 
+			var dvy = this.vy - relation.vy;
+			return Math.sqrt(((dvx)*(dvx) + (dvy)*(dvy)));			
+			}
+		deltav2(relation){//returns magnitude, direction (polar vector)
+			var dvx = this.vx - relation.vx; 
+			var dvy = this.vy - relation.vy;
+			var mag = Math.sqrt(((dvx)*(dvx) + (dvy)*(dvy)));	
+			var dir =  -1*Math.atan2(dvx,dvy) - Math.PI/2;
+			return [mag,dir];
+			}
+		match(that){  //This basically synchronizes two moving bodies
+			this.x = that.x; //same position
+			this.y = that.y;
+			this.vx = that.vx;//same velocity
+			this.vy = that.vy;
+			this.d = that.d; //same direction
+		}
+		damage(dmg){ //Automatically applies damage to shield and hitpoints as appropriate
+			if (this.shield > dmg){
+				this.shield = this.shield - Math.floor(dmg);
+			}else{
+				this.hp = this.hp - Math.floor(dmg) + this.shield;
+				this.shield = 0;
+				}
+			//if ((this.hp < 0) && (this.hp !==-1000)){ this.killship(300); }
+			}
+		collide(that){ //circular collision function
+			if (this.distance(that) < (this.s + that.s)) {return 1; }else{return 0;} 
+			} //Doesn't bounce or damage, just returns 1 if a collision is occuring.
+		directionof(destination){
+			var dx = this.x - destination.x; 
+			var dy = this.y - destination.y;
+			var	dirof = 0;	
+			dirof = -1*Math.atan2(dx,dy) - Math.PI/2;//Sort of trial and error for this
+			return dirof;	
+			}
+		track(target) { //Basic tracking algorithm.  Can be used to track any object compatible 
+			var td = this.directionof(target); //with directionof, which just needs a .x and .y to work with
+			var dd = this.directionof(target)-this.d;
+			while (dd > Math.PI){dd = dd - 2*Math.PI;} //This reduces the angle difference to within +- Math.PI
+			while (dd < -1*Math.PI){dd = dd + 2*Math.PI;} //which 
+			if (dd > .04){ this.vd =+.03; }
+			else if (dd < -0.04){ this.vd = -.03; }
+			else {	this.vd = 0; }
+			}
+		gravitate(pulled){ //For planets.
+			var dx = this.x - pulled.x; 
+			var dy = this.y - pulled.y;
+			var distance = Math.sqrt(((dx)*(dx) + (dy)*(dy)));
+			var gconstant = 0.0003;
+			var magnitude = (gconstant*this.m)/(distance*distance);
+			var dcos = dx/distance;
+			var dsin = dy/distance;
+			pulled.vx = pulled.vx + magnitude*dcos;
+			pulled.vy = pulled.vy + magnitude*dsin;
+			}
+		gravitategroup(pulled){ //Input is a list of objects to pull.  
+			var i = pulled.length;
+			var dx, dy, distance, gconstant, magnitude, dcos, dsin;
+			while (i>0){ //Cycles through list of objects to be pulled
+				i=i-1;
+				dx = this.x - pulled[i].x; 
+				dy = this.y - pulled[i].y;
+				distance = Math.sqrt(((dx)*(dx) + (dy)*(dy)));
+				gconstant = 0.0003;
+				magnitude = (gconstant*this.m)/(distance*distance);
+				dcos = dx/distance;
+				dsin = dy/distance;
+				pulled[i].vx = pulled[i].vx + magnitude*dcos;
+				pulled[i].vy = pulled[i].vy + magnitude*dsin;
+				}
+			}	
+		push(mag,dir){
+			this.vx = this.vx + mag*Math.cos(dir);
+			this.vy = this.vy + mag*Math.sin(dir);
+		}
+		circlecollide(that){ //circular bouncing
+			var dir = this.directionof(that);
+			var dvx = this.vx - that.vx;
+			var dvy = this.vy - that.vy;
+			var thedeltav = this.deltav2(that);
+			var dvmag = thedeltav[0];
+			var dvdir = thedeltav[1];
+			var pushmag = Math.cos(dir - dvdir)*dvmag;
+			if (this.distance(that) < (this.s + that.s)) {
+				that.push(-2*pushmag, (this.directionof(that)));
+				that.damage(this.hurt); 
+				}
+			}
+		bombcollide(that){ //explodes on contact, damages every frame in explosion
+			if (this.distance(that) < (this.s + that.s)) {
+				that.damage(this.hurt); //Automatically proportional based on time spent inside 
+				if (this.timer>6){this.timer = 6;}//sets off explosion by setting timer to start of explosion
+				}
+			}
+		squarebouncecollide(that){
+			var dx = this.x-that.x;
+			var dy = this.y-that.y;
+			if ((( dx<(this.s+that.s) )&&( dx>-1*(this.s+that.s) ))&&(( dy<(this.s+that.s) )&&( dy>-1*(this.s+that.s) ))) {
+				//Checks if in x range AND in y range.  
+				var dvx = this.vx - that.vx;
+				var dvy = this.vy - that.vy;
+				if (dx*dx > dy*dy){ //closer in Y than X, bounce off vertical wall.  Squared to make postive for comparison
+					that.vx = that.vx + 2*dvx;//Adds double the X-axis difference to cancel and reverse the X velocity difference.
+					that.damage(dvx); //damage proportional to closing velocity
+					}
+				if (dy*dy > dx*dx){ //closer in X than Y, bounce off horizontal wall
+					that.vy = that.vy + 2*dvy;
+					that.damage(dvy);
+					}
+				}
+			}
+	
+		drawship(viewx, viewy){ //Ships are drawn as polar polygons, a triangle is the default.  Viewx/viewy are camera center
+			var x = this.x - viewx + canvas.width/2; //normally camera center being the player ship.
+			var y = this.y - viewy + canvas.height/2;
+			drawpolarpoly(x,y,this.polytheta, this.polyradius, this.s, this.c, this.d);//ship polyon
+			var shieldthick = Math.floor(this.shield*4/this.maxshield); //shield
+			if (shieldthick>0){ //Needs to not render at all sometimes because linewidth of 0 is ignored instead of invisible.
+				context.beginPath();  //So instead of not rendering, it will render at most recent thickness (often max)
+				context.arc(x, y, this.s+2, 0, 2 * Math.PI, false); //until linewidth of 1 is reached.
+				context.lineWidth = shieldthick;
+				context.strokeStyle = "blue";
+				context.stroke();	
+			}//Now a health bar/////////////////////////////////////////
+			var prop = this.hp / this.maxhp;
+			var hpc = "green"; //health bar color depends on healthiness
+			if (prop < 0.66){ hpc = "yellow"; }
+			if (prop < 0.33){ hpc = "red"; }
+			context.fillStyle = hpc; //health bar color depends on ship condition
+            context.fillRect(x-this.s/2, y+this.s, Math.floor(this.s*prop), 4);
+			}
+		drawplanet(viewx, viewy){ //input variables are player ship/camera position
+			var x = this.x - viewx + canvas.width/2; //this function draws object as a circle,
+			var y = this.y - viewy + canvas.height/2; //and labels it
+			context.beginPath();
+			context.strokeStyle = this.c; //sets planet color
+			context.arc(x, y, this.s, 0, 2 * Math.PI, false); //draws the circle
+			context.lineWidth = 16; //circle is thicc
+			context.stroke();	//ok now actually draw it.
+			context.fillStyle = "white"; 
+			context.font='20px Arial';
+			context.fillText(this.name,x,y);		
+		}
+		drawbomb(viewx, viewy){ //Bombs are also drawn as circles, but not labelled.
+			var x = this.x - viewx + canvas.width/2;
+			var y = this.y - viewy + canvas.height/2;
+			context.beginPath();
+			context.strokeStyle = this.c;
+			context.arc(x, y, this.s, 0, 2 * Math.PI, false);
+			context.lineWidth = 4;
+			context.stroke();		 
+		}
+		drawstation(viewx, viewy){ //input variables are player ship position
+			var x = this.x - viewx + canvas.width/2;//stations are squares for now
+			var y = this.y - viewy + canvas.height/2;
+			context.beginPath(); //rectangle centered on x,y
+			context.rect(x-this.s,y-this.s, 2*this.s, 2*this.s); //2*this.s wide
+			context.lineWidth = 2; 
+			context.strokeStyle = this.c;
+			context.stroke();	
+			context.fillStyle = "white";
+			context.font='20px Arial';
+			context.fillText(this.name,x,y);		
+		}
+		drawreticle(viewx, viewy){ //input variables are player ship / camera position
+			var x = this.x - viewx + canvas.width/2; //draws reticle around object
+			var y = this.y - viewy + canvas.height/2; //circular reticle.
+			context.beginPath();
+			context.arc(x, y, this.s+24, 0, 2 * Math.PI, false);
+			context.lineWidth = 2;
+			context.strokeStyle = "white";
+			context.stroke();	
+		}
+		drawcompass(targetship, compassx, compassy){  //Draws a triangle pointing in direction of targetship
+			var de = targetship.directionof(this); //targetship doesn't actually have to be a ship
+			var tipx = Math.cos(de)*32 + compassx; //triangle points
+			var tipy = Math.sin(de)*32 + compassy; //sort of from polar coordinates
+			var taillx = Math.cos(de + 0.9*Math.PI)*32 + compassx;
+			var tailly = Math.sin(de + 0.9*Math.PI)*32 + compassy;
+			var tailrx = Math.cos(de + 1.1*Math.PI)*32 + compassx;
+			var tailry = Math.sin(de + 1.1*Math.PI)*32 + compassy;
+			context.fillStyle = this.c; //Now actual drawing of the things
+			context.beginPath(); 
+			context.moveTo(tipx, tipy); //Could be consolidated for less lines with above.
+			context.lineTo(taillx, tailly);
+			context.lineTo(tailrx, tailry);
+			context.lineTo(tipx, tipy);
+			context.fill();
+			context.font='12px Arial';
+			context.fillStyle = "white";
+			context.fillText(this.name,compassx-8,compassy - 48);
+			context.fillStyle = "white";
+			context.fillText(this.hp,compassx-8,compassy - 32);
+			context.fillStyle = "white";
+			context.fillText(Math.floor(this.distance(targetship)),compassx-16,compassy + 42);
+			}// end compass stuff
+		updateship(theplanets){//Unfortunately I need access to the list of planets to handle ship respawning.
+			if ((thruster > 0)&&(this.thrust > 0)){ //skips these calculations if no thrust
+				this.vx = this.vx + this.thrust*Math.cos(this.d);
+				this.vy = this.vy + this.thrust*Math.sin(this.d);
+				thruster = thruster - this.thrust*12;
+				}
+			this.thrust = 0; //keeps thrusters momentary
+			this.x = this.x + this.vx;
+			this.y = this.y + this.vy;
+			this.d = this.d + this.vd;
+			if ((this.hp < 0) && (this.hp !==-1000)){ this.killship(300); }
+			this.deadtime = this.deadtime - 1;
+			if (this.thruster > 100){ this.thruster = 100; }
+			this.energy = this.energy + 1;
+			if (this.energy > 100){	this.energy = 100; }				
+			this.shield = this.shield + this.shieldregen;
+			if (this.shield > this.maxshield){ this.shield = this.maxshield; }			
+			if ((this.deadtime < 0) && (this.hp == -1000)){
+				this.respawn(theplanets[this.parentid]); //maybe change how I handle this
+				}
+			}
+			updatebomb(){ //Handles timer and explosions
+			this.timer= this.timer -1;
+			if (this.timer == 0){this.killbomb();}
+			if (this.timer == 1){this.s = 100*this.boombuff;}
+			if (this.timer == 2){this.s = 128*this.boombuff;}
+			if (this.timer == 3){this.s = 120*this.boombuff;}
+			if (this.timer == 4){this.s = 100*this.boombuff;}
+			if (this.timer == 5){this.s = 75*this.boombuff;}
+			if (this.timer == 6){this.s = 50*this.boombuff;}
+			if (this.timer>6){
+				this.s = 8; //Mostly redundant
+				if (this.hp < 0){this.timer = 6;}
+				}
+			}
+		killship(deathtime){ //Ship is dead, and respawns after deathtime frames.
+			this.x = 1000000+ Math.random()*100000; //Dead ships are banished 
+			this.y = 0;
+			this.vx = 0;
+			this.vy = 0;
+			this.vd = 0;
+			this.d = 0;
+			this.deadtime = deathtime; //deadtime counts down to trigger respawn
+			this.hp = -1000;
+			}
+		killbomb(){ 
+			this.x = 1000000 + Math.random()*100000; //Dead ships are banished 
+			this.y = 0;
+			this.vx = 0;
+			this.vy = 0;
+			this.vd = 0;
+			this.d = 0;
+			this.s = 8;
+			}
+		setorbit(parentplanet, distance, direction, cw){ //cw = -1 or 1
+			this.match(parentplanet); //set velocity and position equal
+			this.x = this.x + (distance)*Math.cos(direction); //set relative
+			this.y = this.y + (distance)*Math.sin(direction); //start location;
+			var gravy = parentplanet.m*.0003 / (distance*distance);  //gMm/r^2, where m is 1;
+			var orbitspeed = Math.sqrt(gravy*distance);  //a = v^2/r, a* r = v^2, v = sqrt(a*r)
+			this.vx = this.vx + orbitspeed*Math.cos(direction + cw*Math.PI/2);
+			this.vy = this.vy + orbitspeed*Math.sin(direction + cw*Math.PI/2);
+			}
+		respawn(parentplanet){
+			var rdir = Math.random()*Math.PI*2; //random direction from planet
+			var rdist = parentplanet.s+this.s+12+Math.random()*2*parentplanet.s; //random ish distance
+			var rcw = Math.floor(Math.random()*2)*2 - 1; //random orbit direction (-1 or 1);
+			this.setorbit(parentplanet, rdist, rdir, rcw);
+			this.hp = this.maxhp;
+			}
+		launchbomb(thebomb, mag, time){ //This allows significant weapon customization in the function call. 
+			thebomb.match(this);	// Mag is how hard the bomb is pushed, time is how long before the bomb detonates on it's own.
+			thebomb.x = thebomb.x + (this.s+thebomb.s+4)*Math.cos(this.d);
+			thebomb.y = thebomb.y + (this.s+thebomb.s+4)*Math.sin(this.d); 
+			thebomb.timer = time;
+			thebomb.hp = 1;
+			thebomb.push(mag,this.d);
+			}
+		drawbeam(viewx, viewy, beamlength, beamwidth, beamcolor){  //Draws the lazor
+			var x = this.x - viewx + canvas.width/2; //normally camera center being the player ship.
+			var y = this.y - viewy + canvas.height/2;
+			var beamstartx = x + (this.s+4)*Math.cos(this.d);
+			var beamstarty = y + (this.s+4)*Math.sin(this.d); 
+			var beamstopx = x + (this.s+4+beamlength)*Math.cos(this.d);
+			var beamstopy = y + (this.s+4+beamlength)*Math.sin(this.d); 
+			context.strokeStyle = beamcolor; //Now actual drawing of the things
+			context.lineWidth = beamwidth;
+			context.beginPath(); 
+			context.moveTo(beamstartx, beamstarty); 
+			context.lineTo(beamstopx, beamstopy);
+			context.stroke();
+		}
+		beamcollide(beamlength, target){ //Returns 1 if the beam of length beamlength is touching target Umo.
+		var collide = 0;
+		if (this.distance(target) < (this.s+target.s+beamlength)){
+			var deltad = this.d - this.directionof(target);
+			if (deltad > Math.PI){deltad = deltad - 2*Math.PI;}
+			if (deltad < -1*Math.PI){deltad = deltad + 2*Math.PI;}
+			if ((deltad< Math.PI/2)&&(deltad>-1*Math.PI/2)){
+				var m = Math.tan(this.d);
+				var x1 = this.x;
+				var y1 = this.y;
+				var x2 = target.x;
+				var y2 = target.y; 
+				var dy =  m*(x2-x1)+y1-y2 
+				var dist = Math.abs(dy/m);
+				if (dist<target.s){
+					collide = 1;
+					}
+				}
+			}
+		return collide;
+		}
+		}//end Umo class.
+////////Declarations//////////////////////////////////////////////////////////////////////////////////
+////////This is basically the game world/////////////////////////////////////////////////////////////////
+////////Planets////////////////////////////////////////////////////////////////////////////////////////
+		let sun = new Umo(0, 0, 2048, "orange"); //planet initialization/////////////
+		sun.name = "Sun";
+		let murc = new Umo(0,8000,150,"brown");//initial position irrelevant
+		murc.name = "Murc";
+		murc.setorbit(sun, 8000, 0, 1);
+		let vnus = new Umo(0,14000,270,"yellow")
+		vnus.name = "Vnus";
+		vnus.setorbit(sun, 14000, 0, 1);
+		let earf = new Umo(0, 20000, 300, "blue"); 
+		earf.name = "Earf";
+		earf.setorbit(sun, 20000, 0, 1);
+		let moon = new Umo(1000, 20000, 100, "white"); 
+		moon.name = "Moon";
+		moon.setorbit(earf, 1000, 0, 1);
+		let merz = new Umo(0, 32000, 200, "red");
+		merz.name = "Merz";						
+		merz.setorbit(sun, 32000, 0, 1);
+		let fobz = new Umo(600,32000,32, "white");
+		fobz.name = "Fobz";
+		fobz.setorbit(merz, 600, 0, 1);
+		let deem = new Umo(-800,32000,32, "white");
+		deem.name = "Deem";
+		deem.setorbit(merz, 800, 0, 1);
+		let jupe = new Umo(0,0,1024,"brown");
+		jupe.name = "Jupe";
+		jupe.setorbit(sun,75000,0,1);
+		let heyo = new Umo(0,0,100,"yellow");
+		heyo.name = "Heyo";
+		heyo.setorbit(jupe,1200,0,1);
+		let erpa = new Umo(0,0,160,"blue");
+		erpa.name = "Erpa";
+		erpa.setorbit(jupe,2000,0,1);
+		let mede = new Umo(0,0,250,"brown");
+		mede.name = "Mede";
+		mede.setorbit(jupe,2800,0,1);
+		let tern = new Umo(0,0,600,"yellow");
+		tern.name = "Tern";
+		tern.setorbit(sun,120000,0,1);
+		let itan  = new Umo(0,0,200,"grey");
+		itan.name = "Itan";
+		itan.setorbit(tern,1250,0,1);
+		let anus = new Umo(0,0,500,"green");
+		anus.name = "Anus";
+		anus.setorbit(sun,160000,0,1);
+		let tune = new Umo(0,0,550,"cyan");
+		tune.name = "Tune";
+		tune.setorbit(sun,210000,0,1);
+		let planets = [sun,murc,vnus,earf,moon,merz,fobz,deem,jupe,heyo,erpa,mede,tern,itan,anus,tune];
+////////Ships//////////////////////////////////////////////////////////
+		let player1 = new Umo(400,32400,32,"red");//player ship
+		player1.vx =9.1+2; //Sort of obselete, should just start with respawn call
+		player1.vy = 0;
+		player1.hp = 1000;
+		player1.maxhp = 1000;
+		player1.parentid = 3; //Spawn relative to planet 3 in list index.
+		player1.maxshield = 200; //Give the player more than the default shield strength.
+		player1.shield = 200;
+		//This design is sort of a backwards butterfly
+		//player1.polytheta = [0, 0.1*Math.PI, 0.7*Math.PI, Math.PI, 1.3*Math.PI, 1.9*Math.PI ];
+		//player1.polyradius = [0.25, 0.75, 1, 0.25, 1,0.75];
+
+		//sort of like the butterfly with an center spike
+		//player1.polytheta = [0, 0.15*Math.PI, 0.2*Math.PI, 0.7*Math.PI, Math.PI, 1.3*Math.PI, 1.8*Math.PI, 1.85*Math.PI];
+		//player1.polyradius = [1, 0.5, 0.9, 1, 0.25, 1, 0.9, 0.5];
+
+		//Sort of a pointer
+		//player1.polytheta = [0, 0.2*Math.PI, 0.7*Math.PI, Math.PI, 1.3*Math.PI, 1.8*Math.PI];
+		//player1.polyradius = [1, 0.85, 1, 0.25, 1, 0.85];
+		
+		//random polygon test, 8 sides
+		randomsides = Math.floor(Math.random()*8)*2+4; //4 to 18 sides, even only
+		randomplayerverts = randpolarpoly(8, 0.25);//sides,  minimum radius
+		player1.polytheta = randomplayerverts[0];
+		player1.polyradius = randomplayerverts[1];
+
+		player1.setorbit(earf, 600, 0, -1); //overrides spawn, test 
+		//player1.setorbit(jupe, 1200, 0, -1); //overrides spawn, test
+/////Earf orbit enemies ////////////////////////////////////////////////////		
+		let bot1 = new Umo(-420,20000,32,"cyan"); 
+		bot1.parentid = 3; 
+		bot1.respawn(planets[bot1.parentid]);
+		bot1.name = "Ugeen";
+		let bot2 = new Umo(420,20000,32,"cyan"); 
+		bot2.parentid = 3;
+		bot2.respawn(planets[bot2.parentid]);
+		bot2.name = "Leroy";
+		let bot3 = new Umo(800,20000,32,"cyan");
+		bot3.parentid = 3;
+		bot3.respawn(planets[bot3.parentid]); 
+		bot3.name = "Devyn";
+/////Vnus orbit enemies//////////////////////////////////////////////////////////
+		let bot4 = new Umo(500,14000,32,"brown");
+		bot4.parentid = 2; 
+		bot4.respawn(planets[bot4.parentid]);
+		bot4.name = "Chadd";
+		let bot5 = new Umo(1000,14000,32,"brown");
+		bot5.parentid = 2;
+		bot5.respawn(planets[bot5.parentid]); 
+		bot5.name = "Phred";
+		let bot6 = new Umo(-1000,14000,32,"brown");
+		bot6.parentid = 2; 
+		bot6.respawn(planets[bot6.parentid]);
+		bot6.name = "Peetr";
+///////////Murc orbit enemies///////////////////////////////////////////////////////
+		let bot7 = new Umo(300,6000,32,"brown");
+		bot7.parentid = 1; 
+		bot7.respawn(planets[bot7.parentid]);
+		bot7.name = "Artie";
+		bot7.hp = 600;
+		bot7.maxhp = 600;
+		let bot8 = new Umo(-300,6000,32,"brown");
+		bot8.parentid = 1; 
+		bot8.respawn(planets[bot8.parentid]);
+		bot8.name = "Lizzz";
+		bot8.hp = 600;
+		bot8.maxhp = 600;
+////////////Merz orbit enemies/////////////////////////////////////////////////////////////
+		let bot9 = new Umo(400,32000,32,"brown");
+		bot9.parentid = 5; 
+		bot9.respawn(planets[bot9.parentid]);
+		bot9.name = "Chriz";
+		bot9.hp = 150;
+		bot9.maxhp = 150;
+		let bot10 = new Umo(-400,32000,32,"brown");
+		bot10.parentid = 5; 
+		bot10.respawn(planets[bot10.parentid]);
+		bot10.name = "Grigg";
+		bot10.hp = 150;
+		bot10.maxhp = 150;
+		let bot11 = new Umo(-600,32000,32,"brown");
+		bot11.parentid = 5; 
+		bot11.respawn(planets[bot11.parentid]);
+		bot11.name = "Lorra";
+		bot11.hp = 150;
+		bot11.maxhp = 150;
+		let ships = [player1,bot1,bot2,bot3,bot4,bot5,bot6,bot7,bot8,bot9,bot10,bot11];
+ ////////Bombs//////////////////////////////////////////////////////////////////////////////////////////       
+		let p1b1 = new Umo(0,0,8,"red"); //Player weapon 1
+		p1b1.c = "red"; //Staple player weapon
+		p1b1.hurt = 16;
+		p1b1.boombuff = 0.75;
+		let p1b2 = new Umo(0,0,0,0); //Player weapon 2
+		p1b2.c = "purple"; //Slow, powerful bomb
+		p1b2.boombuff = 1.5;
+		p1b2.hurt  = 64;
+		let p1b3 = new Umo(0,0,0,0);  //Player weapon 3
+		p1b3.c = "green"; //Weak short range flak weapon.		
+		p1b3.boombuff = 1.2;
+		p1b3.hurt = 12;
+		let p1b4 = new Umo(0,0,0,0); //Player weapon 4
+		p1b4.c = "blue"; //Fast, powerful, but costly projectile with minimal blast.		
+		p1b4.boombuff = 0.2;
+		p1b4.hurt = 50;
+		let b1b1 = new Umo(0,0,0,"cyan");  //One bomb for each ship for now
+		let b2b1 = new Umo(0,0,0,"cyan");
+		let b3b1 = new Umo(0,0,0,"cyan");
+		let b4b1 = new Umo(0,0,0,"brown");
+		let b5b1 = new Umo(0,0,0,"brown");
+		let b6b1 = new Umo(0,0,0,"brown");
+		let b7b1 = new Umo(0,0,0,"blue");
+		let b8b1 = new Umo(0,0,0,"blue");
+		let b9b1 = new Umo(0,0,0,"red");
+		let b10b1 = new Umo(0,0,0,"red");
+		let b11b1 = new Umo(0,0,0,"red");
+		let playerbombs = [p1b1,p1b2,p1b3,p1b4]; //not used
+		let botbombs = [b1b1,b2b1,b3b1,b4b1,b5b1,b6b1,b7b1,b8b1,b9b1,b10b1,b11b1]; //not used
+		let bombs = [p1b1,p1b2,p1b3,p1b4,b1b1,b2b1,b3b1,b4b1,b5b1,b6b1,b7b1,b8b1,b9b1,b10b1,b11b1];
+		var i = bombs.length;
+		while (i>0){  //For all bombs...
+			i=i-1;
+			bombs[i].hp = 1;  //Set hitpoints to 1 so they explode on contact
+			bombs[i].maxhp = 1; //with planets
+			} 
+//////////Candy are objects dropped by enemies when they die./////////////////////////////////////////////////////////////////
+		let candy1 = new Umo(0,0,0,0);
+		let candy2 = new Umo(0,0,0,0);
+		let candy3 = new Umo(0,0,0,0);
+		let candy4 = new Umo(0,0,0,0);
+		let candy5 = new Umo(0,0,0,0);
+		let candy6 = new Umo(0,0,0,0);
+		let candy7 = new Umo(0,0,0,0);
+		let candy8 = new Umo(0,0,0,0);
+		let candys = [candy1,candy2,candy3,candy4,candy5,candy6,candy7,candy8];
+//////////////////GAME LOOP/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////update function this is the game loop bruh///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function update() {
+			context.fillStyle = "black";//Background
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			var i=ships.length; //draw ships and planets///////////////////////////////////
+			if (beamon == 1){ //This is the beam weapon handling.  It doesn't quite work yet.
+				var bcolor = "red";
+				var i = ships.length;
+				while(i>1){
+					i=i-1;
+					var collidecheck = ships[0].beamcollide(500,ships[i]);	//prevents ships from rendering, why?
+					if (collidecheck == 1){bcolor = "blue";}
+					}
+				ships[0].drawbeam(ships[0].x, ships[0].y, 400, 4, bcolor);
+				energy = energy - 2;
+				if (energy <2){beamon = 0;}
+				}
+			while (i>0){ //for all ships,
+				i=i-1;
+				//if (ships[0].distance(ships[i])<drawdistance+ships[i].s/2){ //if ships[i] is near
+					ships[i].drawship(ships[0].x,ships[0].y); //draw ship from ship[0]'s view
+					//}
+				}
+			i = planets.length; 
+			while (i>0){ //for all planets
+				i=i-1;
+				if (ships[0].distance(planets[i])<drawdistance+planets[i].s/2){ //if planets[i] is near
+					planets[i].drawplanet(ships[0].x,ships[0].y); //draw planet from shop[0]'s view
+					}
+				}
+			i = bombs.length; //for all bombs
+			while (i>0){
+				i=i-1;
+				if (ships[0].distance(bombs[i])<drawdistance){ // if bombs[i] is near
+					bombs[i].drawbomb(ships[0].x,ships[0].y); //draw bomb from ship[0]'s view
+					}
+				}
+			i = candys.length;
+			while (i>0){
+				i=i-1;
+				candys[i].drawplanet(ships[0].x,ships[0].y); //temp candy solution
+				}			  
+			i = ships.length; //update section////////////////////////////////////////////////////////////
+			while (i>0){ //update ships
+				i=i-1;
+				ships[i].updateship(planets);
+				}
+			i = planets.length; //update planets
+			while (i>0){
+				i=i-1;
+				planets[i].update1();
+				}
+			i = bombs.length; //update bombs
+			while (i>0){
+				i=i-1;
+				bombs[i].update1();
+				bombs[i].updatebomb();
+				}
+			i = candys.length; //update candys
+			while (i>0){
+				i=i-1;
+				candys[i].update1();
+				}	
+			if (thruster<100){thruster=thruster+1;} //External variable updates
+			if (energy<100){energy = energy +1;}
+			i=planets.length; //gravitate section////////////////////////////////////////////////////
+			while (i>0){ //For all planets,
+				i=i-1;
+				var j = ships.length;
+				while (j>0){ //gravitate on each ship
+					j=j-1;
+					planets[i].gravitate(ships[j]);
+					}
+				j = bombs.length;
+				while (j>0){ //gravitate on each bomb
+					j=j-1;
+					planets[i].gravitate(bombs[j]);
+					}  
+				j = candys.length;
+				while (j>0){ //gravitate on each candy
+					j=j-1;
+					planets[i].gravitate(candys[j]);
+					}
+				}
+			planets[0].gravitategroup([planets[1],planets[2],planets[3],planets[4],planets[5],planets[6],planets[7],planets[8],planets[9],planets[10],planets[11],planets[12],planets[13],planets[14],planets[15]]);//Sun pulls the system
+			planets[3].gravitategroup([ planets[4] ]); //Earf pulls just the moon
+			planets[5].gravitategroup([ planets[6], planets[7] ]); //Merz pulls fobz and deem.
+			planets[8].gravitategroup([ planets[9], planets[10], planets[11]]); //Jupe pulls heyo, erpa, and mede
+			planets[12].gravitategroup( [planets[13]]); //Tern pulls just itan.
+////////////collisions/////////////////////////////////////////////////////
+			var i = planets.length;
+			var j = ships.length;
+			var k = bombs.length;
+			var l = candys.length;
+			while (i>0){ //For all planets
+				i=i-1;
+				j = ships.length;
+				while (j>0){ //For all ships to each planet
+					j=j-1;
+					planets[i].circlecollide(ships[j]);
+					}
+				k = bombs.length;
+				while (k>0){ //For all bombs to each planet
+					k=k-1;
+					planets[i].circlecollide(bombs[k]); 
+					}
+				l = candys.length;
+				while (l>0){ //For all bombs to each planet
+					l=l-1;
+					planets[i].circlecollide(candys[l]); 
+					}
+				}
+			j = ships.length;
+			k = bombs.length;
+			l = candys.length;
+			while (j>0){
+				j=j-1;
+				k = bombs.length;
+				while (k>0){
+					k=k-1;
+					if (ships[j].hp>=0){//do not execute on dead ships.  Maybe check player distance too.
+						bombs[k].bombcollide(ships[j]);
+						if (ships[j].hp<0){money = money + Math.floor(Math.random()*21);}//Doesn't handle death, just cash.
+						}
+				}}
+////////////AI behavior section///////////////////////////////////////////////
+			var j = ships.length; //4 is the number of player bombs in the stack
+			while (j>1){ //Does not act on ship[0], which is player1.
+				j=j-1; 
+				if (ships[0].distance(ships[j]) < 5000){ //Don't do anything if player is far
+					ships[j].track(ships[0]); //Bots point towards player
+					if ((Math.random()>0.96) && (bombs[j+3].timer < 1)){  //Bots fire occasionally, if bomb isn't out
+						if  (ships[j].parentid == 1){//Murc gets railguns
+							ships[j].launchbomb(bombs[j+3], 20, 120);//20 pixels per frame, 120 frames
+							bombs[j+3].hurt = 100; //and these bombs hurt 100 dmg per frame
+							bombs[j+3].boombuff = 0.25 //Dont really explode tho	
+						}else if (ships[j].parentid==2){ //Vnus gets flakkers
+							ships[j].launchbomb(bombs[j+3], 12, 20); //12 pixels per frame, 20 frames.
+							bombs[j+3].hurt = 20; //20 dmg per frame 
+							bombs[j+3].boombuff = 1.5;//larger blast radius
+						}else if (ships[j].parentid==3){//Earf bots get basic blaster
+							ships[j].launchbomb(bombs[j+3], 12, 80); //12 pixels per frame, 80 frames.
+							bombs[j+3].hurt = 25; //20 dmg per frame  and 
+							bombs[j+3].boombuff = 0.8;//Medium small blast
+						}else if (ships[j].parentid==5){ //Merz bots get basic blaster
+							ships[j].launchbomb(bombs[j+3], 10, 80); //12 pixels per frame, 80 frames.
+							bombs[j+3].hurt = 20; //20 dmg per frame  and 
+							bombs[j+3].boombuff = 1;//Medium small blast
+							}
+						}
+					}
+				}
+///////Respawn handling////////////////////////////////////////////////////////////////////////////////////////////
+			j = ships.length;
+			while (j>0){
+				j = j - 1;
+				if ((ships[j].deadtime < 0) && (ships[j].hp == -1000)){ //Death is handled in the update1
+					ships[j].respawn(planets[ships[j].parentid]); 
+					}
+				}
+//////////Mouse turning/////////////////////////////////
+			ships[0].d = moused+Math.PI; //Instant turning because its easy for now
+//HUD information/////////////////////////////////////////////////////////////////////////////////////
+			ships[shiptarget].drawcompass(ships[0],canvas.width-128,canvas.height-64); //Targeting computer compass
+			ships[shiptarget].drawreticle(ships[0].x,ships[0].y); //Targeting reticle
+			planets[navtarget].drawcompass(ships[0],canvas.width-64,canvas.height-64); //Nav computer compass
+			ships[shiptarget].drawcompass(ships[0],canvas.width-128,canvas.height-64); //Targeting computer compass
+			ships[shiptarget].drawreticle(ships[0].x,ships[0].y);
+			context.font='12px Arial';
+			context.fillStyle = "orange"; //thruster power bar 
+            context.fillRect(4, canvas.height-80,Math.floor(0.64*thruster), 16);
+			context.fillStyle = "red"; //weapons energy bar
+            context.fillRect(4, canvas.height-60,Math.floor(0.64*energy), 16);
+			context.fillStyle = "blue"; //shield bar
+            context.fillRect(4, canvas.height-40,Math.floor(64*ships[0].shield/ships[0].maxshield), 16);
+			context.fillStyle = "green"; //health bar
+            context.fillRect(4, canvas.height-20,Math.floor(64*ships[0].hp/ships[0].maxhp), 16);
+			context.fillStyle = "white";
+			context.fillText("Thrusters",10,canvas.height-68);
+			context.fillText("Weapons",10,canvas.height-48);
+			context.fillText("Shields",10,canvas.height-28);
+			context.fillText("Health",10,canvas.height-8);	
+			context.fillText("Weapon:",10,canvas.height-120);
+			context.fillText(wep,32,canvas.height-100);
+			context.fillText("X",5,10);
+			context.fillText("Y",5,25);			
+			context.fillText(Math.floor(ships[0].x),15,10);
+			context.fillText(Math.floor(ships[0].y),15,25);
+			context.fillText("HP",5, 45);
+			context.fillText(Math.floor(ships[0].hp),20,45);			
+			context.fillText("Thrust ",5,60);
+			context.fillText(thrustmultiplier,50,60);
+			context.fillText("Launch",5,75);
+			context.fillText(testname,50,75);
+			context.fillText("Money",5,90);
+			context.fillText(money,50,90);
+			context.fillText("Mouse aims, spacebar thrust, control fires, 1234 selects weapons. N cycles nav target, T cycles nme targets. S toggles Shop",80,canvas.height-10);
+////Shopping!//////////////////////////////////////////////////////
+if (shop==1){
+			context.fillText("Up and Down to select, Enter to purchase.",canvas.width/2+64,canvas.height/2-120);
+			context.fillText("$20 Repair hull",canvas.width/2+64,canvas.height/2-90);
+			context.fillText("$400 w2 Mine",canvas.width/2+64,canvas.height/2-70);
+			context.fillText("$200 w3 Flakker",canvas.width/2+64,canvas.height/2-50);
+			context.fillText("$1000 w4 Railgun",canvas.width/2+64,canvas.height/2-30);
+			context.fillText("$600 w1 Blaster Upgrade I (detonator)",canvas.width/2+64,canvas.height/2-10);	
+			context.fillText("$1200 w2 Mine Upgrade I (detonator)",canvas.width/2+64,canvas.height/2+10);
+			context.fillText("$1000 w3 Flakker Upgrade I (damage)",canvas.width/2+64,canvas.height/2+30);
+			context.fillText("$1000 Armor Upgrade I",canvas.width/2+64,canvas.height/2+50);
+			context.fillText("$2000 Shield Upgrade I",canvas.width/2+64,canvas.height/2+70);
+			context.fillText("$800 Single-use extra hull",canvas.width/2+64,canvas.height/2+90);	
+			context.fillText(shopitem,canvas.width/2+64,canvas.height/2+120);	
+			context.beginPath(); 
+			context.rect(canvas.width/2+60,canvas.height/2-104+20*shopitem, 256, 18); 
+			context.lineWidth = 2; 
+			context.strokeStyle = "green";
+			context.stroke();	
+	}
+//////////////////////Mouse input handling//////////////////////////////////////////
+document.addEventListener("mousemove", mouseMoveHandler, false);
+function mouseMoveHandler(e) {
+    var dx =  e.clientX - canvas.width/2;
+	var dy =  e.clientY - canvas.height/2;
+	moused = -1*Math.atan2(dx,dy) - Math.PI/2;//Sort of trial and error for this calibration
+} //I should figure that out better.
+////////////////////////////////////////////////////////Keyboard input/////////////////////////////////////
+window.addEventListener("keydown", function (event) {
+  if (event.defaultPrevented) {
+    return; // Do nothing if the event was already processed
+  }
+  switch (event.key) {  //movement keys change velocity
+    case " ":
+      ships[0].thrust = 2*thrustmultiplier; //pushes player in direction this.d
+      break;   
+	case "z": 
+		if (thrustmultiplier < 2){ thrustmultiplier = thrustmultiplier + .25; }
+		else { thrustmultiplier = 0.25; }
+      break;
+	case "a": 
+		if (launchmultiplier < 2){ launchmultiplier = launchmultiplier + .25; }
+		else {	launchmultiplier = 0; }
+      break;	  
+	case "Control":
+		if (wep == 1){
+			if ((w1 > 1)&&(bombs[0].timer > 4)){bombs[0].timer = 6;} //This remote detonation code doesn't work with mousedown for some reason
+			else if ((energy > 20)&&(w1>0)){ //If ship has energy and weapon 1.
+					ships[0].launchbomb(bombs[0],12, 120);  //launch bomb[0] 12 pixels per frame, timed to explode in 120 frames.
+					energy = energy - 20; //w1 costs 20 energy
+				}
+			}
+		if (wep == 2){
+			if ((w2 > 1)&&(bombs[1].timer > 4)){bombs[1].timer = 6;} 
+			else if ((energy > 50)&&(w2>0)){ 
+				ships[0].launchbomb(bombs[1],1, 600);//A mere 1 pixel per frame, but for 600 frames (20s).
+				energy = energy - 50;
+				}
+			}
+		if (wep == 3){
+			 if ((energy > 30)&&(w3>0)){ //If ship has energy and weapon 3.
+					ships[0].launchbomb(bombs[2],16, 12);
+					energy = energy - 33;
+				}
+			}						
+		if (wep == 4){
+			if ((energy > 75)&&(w4>0)){ //If ship has energy and weapon 4.
+					ships[0].launchbomb(bombs[3],24, 120);  
+					energy = energy - 75; 
+				}
+			}
+		if (wep == 5){
+			if (w5>0){ //If ship has weapon 5, energy checked in loop
+					if (beamon == 0){beamon = 1;}else{beamon=0;}
+				}
+			}				
+		break;
+	case "1":    //This is how weapon switching is handled.
+		if (w1>0){ wep = 1; } //If weapon is present, switch to it.		
+		break; //Nothing happens on keypress otherwise.
+	case "2": 
+		if (w2>0){ wep = 2; }
+	  break;
+	case "3": 
+		if (w3>0){ wep = 3; }
+      	break;
+	case "4": 
+		if (w4>0){ wep = 4; }
+   	 break;
+	case "5": 
+		if (w5>0){ wep = 5; }
+	  break;
+	case "6": 
+		if (w6>0){ wep = 6; }
+   	   break;
+	case "7": 
+		if (w7>0){ wep = 7; }
+	  break;
+	case "8": 
+		if (w8>0){ wep = 8; }
+ 	     break;
+	case "9": 
+		if (w9>0){ wep = 9; }
+	  break;
+	case "0": 
+		if (w0>0){ wep = 0; }
+     	 break;
+	case "n": 
+		navtarget = navtarget+1;
+		if (navtarget == planets.length){ navtarget = 0; }
+    	  break;
+	case "w": 
+		ships[0].respawn(planets[navtarget]);
+     	 break;
+	case "t": 
+		if (shiptarget == ships.length-1){ shiptarget = 0; }
+		else {shiptarget = shiptarget+1;}
+		while (ships[0].distance(ships[shiptarget])>100000){shiptarget = shiptarget + 1;}
+	  break;                                              
+      break;
+    case "ArrowUp":
+		shopitem = shopitem - 1;
+		if (shopitem<0){shopitem = 9;}
+      break;
+    case "ArrowDown":
+		shopitem = shopitem + 1;
+		if (shopitem>9){shopitem = 0;}
+      break;   //handled in detail elsewhere
+	case "s":
+		if (shop == 0){shop = 1;} else {shop = 0;}
+      break;
+	case "s":
+		if (shop == 0){shop = 1;} else {shop = 0;}
+      break;
+	 case "Enter": //Most of the functional shopping code goes here.
+		if (shop == 1){//Only works in shop
+			if ((shopitem == 0)&&(money>19)){ //First item on list
+				ships[0].hp = ships[0].maxhp;
+				money = money - 20;
+			}else if ((shopitem == 1)&&(money>399)){ //Second item...
+				if (w2 == 0){//Only buy if not already bought
+					w2 = 1; //Flakker is weapon 3, 3rd bomb type index 2.
+					money = money - 400;
+					}
+			}else if ((shopitem == 2)&&(money>199)){
+				if (w3 == 0){//Only buy if not already bought
+					w3 = 1; //Flakker is weapon 3
+					money = money - 200;
+					}
+			}else if ((shopitem == 3)&&(money>999)){
+				if (w4 == 0){//Only buy if not already bought
+					w4 = 1; //Railgun is w4
+					money = money - 1000;
+					}
+			}else if ((shopitem == 4)&&(money>599)){
+				if (w1 == 1){//Only buy if w1 present but not upgraded
+					w1 = 2; //Values >1 denote upgrades.
+					money = money - 600;
+					}
+			}else if ((shopitem == 5)&&(money>1199)){
+				if (w2 == 1){//Only buy if w3 present but not upgraded
+					w2 = 2; //Values >1 denote upgrades.
+					money = money - 1200;
+					}
+			}else if ((shopitem == 6)&&(money>999)){
+				if (w3 == 1){//Only buy if w3 present but not upgraded
+					w3 = 2; //Values >1 denote upgrades.
+					bombs[2].hurt = bombs[2].hurt + 20; //bombs index 2 is player weapon 3
+					money = money - 1000;
+					}
+			}else if ((shopitem == 7)&&(money>999)){
+				if (a1 == 0){//Only buy if a1 has no upgrades
+					a1 = 1; //Values >1 denote further upgrades.
+					ships[0].maxhp = ships[0].maxhp + 250; //bombs index 2 is player weapon 3
+					money = money - 1000;
+					}
+			}else if ((shopitem == 8)&&(money>1999)){
+				if (s1 == 0){//Only buy if s1 has no upgrades
+					s1 = 1; //Values >1 denote further upgrades.
+					ships[0].maxshield = ships[0].maxshield + 200; //Incrementing allows me to rebalance initial maximum
+					money = money - 2000;  //Regen rate is unchanged, will be upgradable soon
+					}
+			}else if ((shopitem == 9)&&(money>799)){
+				ships[0].hp = 2 * ships[0].maxhp;  //Adds hit points beyond maximum -- can't repair it!
+				}
+		}//end of shop handling
+      break;
+    default:
+      return; // Quit when this doesn't handle the key event.
+  } //end event key handling switch
+  event.preventDefault();// Cancel the default action to avoid it being handled twice
+}, true);	//end of event key handling, not clear what the ", true);" is about		
+}//end update function
+    </script>
+</body>
+</html>
