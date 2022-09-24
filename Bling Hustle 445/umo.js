@@ -559,6 +559,13 @@ class Umo { //Universal Moving Object
 		context.fillText(Math.floor(this.distance(targetship)),compassx-16,compassy + compasssize);
 		}// end compass stuff
 	updateship(theplanets){//Unfortunately I need access to the list of planets to handle ship respawning.
+		this.deadtime = this.deadtime - 1;
+		if ((this.deadtime < 0) && (this.hp == -1000)){
+			this.respawn(theplanets[this.parentid]); //maybe change how I handle this
+			if (this.name == "Cactus Fantastico"){//default/player umo name
+				respawn1.play();
+				}
+			}
 		if (this.thrust > 0){ //skips these calculations if no thrust
 			this.vx = this.vx + this.thrust*Math.cos(this.d);
 			this.vy = this.vy + this.thrust*Math.sin(this.d);
@@ -603,18 +610,11 @@ class Umo { //Universal Moving Object
 		this.y = this.y + this.vy;
 		this.d = this.d + this.vd;
 		if ((this.hp <= 0) && (this.hp !==-1000)){ this.killship(1800); }
-		this.deadtime = this.deadtime - 1;
 		if (this.thruster > 100){ this.thruster = 100; }
 		this.energy = this.energy + 1;
 		if (this.energy > 100){	this.energy = 100; }				
 		this.shield = this.shield + this.shieldregen;
 		if (this.shield > this.maxshield){ this.shield = this.maxshield; }			
-		if ((this.deadtime < 0) && (this.hp == -1000)){
-			this.respawn(theplanets[this.parentid]); //maybe change how I handle this
-			if (this.name == "Cactus Fantastico"){//default/player umo name
-				respawn1.play();
-				}
-			}
 		}
 	updatepivot(){//Not used yet.
 		if (this.damagestate>0){this.damagestate = this.damagestate-1;}

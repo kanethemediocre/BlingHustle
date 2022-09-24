@@ -114,7 +114,39 @@ class NPCAI{
 			}
 		return npcsubset;
 		}
-	behave(thesystem){//Bots decide and act in the current frame
+	hangaround(thesystem,planeti,tetherdistance){
+		//var mrs = 0.5; //minimum return speed
+		var theplanet = thesystem.planets[planeti];
+		var myship = thesystem.npcs[this.id].ship;
+		var planetdistance = myship.distance(theplanet);
+		console.log("soft tether to "+theplanet.name+" at distance "+planetdistance);
+		var dv = myship.deltav2(theplanet);
+		var deltav = dv[0];
+		var dir = myship.directionof(theplanet)
+		var cosdv =  Math.cos(dv[1]-dir)*dv[0];
+		var sindv =  Math.sin(dv[1]-dir)*dv[0];
+		var escape = Math.sqrt(theplanet.m*2*.0003/planetdistance);
+		console.log("cosdv = "+cosdv+" sindv = "+sindv);
+		if (deltav>escape){
+			if (cosdv>-1){//if moving away from the planet
+				myship.d = dir;
+				myship.thrust = 1;
+				console.log("1thrusting towards planet");
+				}
+			else if (cosdv<-1){//if moving towards the planet
+				myship.d = dv[1];//+Math.PI;
+				myship.thrust = 1;
+				console.log("braking");
+				}
+			}
+		else if(cosdv>-1){
+			myship.d = dir;
+			myship.thrust = 1;
+			console.log("2thrusting towards planet");
+			}
+
+		}
+	behave(thesystem,time){//Bots decide and act in the current frame
 		if (this.behavenow == "gotoinert"){
 			thesystem.npcs[this.id].ship.seek3(thesystem.planets[this.nowtargetplanet]);
 			if (thesystem.npcs[this.id].ship.distance(thesystem.planets[this.nowtargetplanet])>(this.navslop+thesystem.planets[this.nowtargetplanet].s)){
@@ -125,31 +157,18 @@ class NPCAI{
 			//basic autopilotoid 
 			}
 		if (this.behavenow == "loiter"){
-			var homeplanet = thesystem.planets[this.homeplanet];
-			var myship = thesystem.npcs[this.id].ship;
-			var homedistance = myship.distance(homeplanet);
-			if ((homedistance>this.hardtether)&&(myship.hp>0)){
-				myship.respawn(thesystem.planets[this.homeplanet]);
-				console.log("respawning at planet "+this.homeplanet)
-				}
-			else if (homedistance>this.softtether){
-				console.log("soft tether to "+this.homeplanet)
-				var dv = myship.deltav2(homeplanet);
-				var deltav = dv[0];
-				var cosdv =  Math.cos(dv[1]-myship.directionof(homeplanet))*dv[0];
-				var sindv =  Math.sin(dv[1]-myship.directionof(homeplanet))*dv[0];
-				var escape = Math.sqrt(homeplanet.m*2*.0003/homedistance);
-				if (cosdv<0){//if moving away from the planet
-
+			if (time%20==0){
+				var homeplanet = thesystem.planets[this.homeplanet];
+				var myship = thesystem.npcs[this.id].ship;
+				var homedistance = myship.distance(homeplanet);
+				if ((homedistance>this.hardtether)&&(myship.hp>0)){
+					myship.respawn(homeplanet);
+					console.log("respawning at planet "+this.homeplanet)
 					}
-				else if (cosdv>0){//if moving towards the planet
-
-					}
-				if (Math.abs(sindv)>1){//if moving askew to the planet, not sure if thats the right word
-
+				else if (homedistance>this.softtether){
+					this.hangaround(thesystem,this.homeplanet,2000,time);
 					}
 				}
-
 			}
 		if (this.behavenow == "trackattacknpc"){
 			var thetargetdistance = thesystem.npcs[this.id].ship.distance(thesystem.npcs[this.nowtargetship].ship);

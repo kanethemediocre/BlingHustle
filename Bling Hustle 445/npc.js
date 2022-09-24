@@ -60,7 +60,7 @@ class NPC{
 			//this.ship.update1();
 			this.ship.updateship(thesystem.planets);
 			if (time%15==0){this.ai.ponder(thesystem);}
-			this.ai.behave(thesystem);
+			if (this.ship.hp!=-1000){this.ai.behave(thesystem,time);}
 			this.blasters[0].update1();
 			}
 		}
