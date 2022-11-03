@@ -1,0 +1,43 @@
+Notes on cargo pricing
+
+basic types:
+Mining-High demand for mining bots, medium demand for food
+
+water
+oxygen
+phosphorus
+iron
+
+Agriculture-High demand for farm bots, water, and phosphorus, and medium demand for ALHWs
+weet
+cheese
+Tendies
+dank cheese
+
+Manufacturing-High demand for iron, medium demand for food
+ALHWs (arbitrary left handed widget)
+Mine Bots
+Farm Bots
+
+
+Bases will have a primary type, and supply ratio between goods of that type (some mines might mostly be iron mines, some mostly oxygen etc).
+Bases will also have some weight assigned to define local supply of non-primary industries and goods.
+Agriculture planets/stations will sometimes have high local supply of water, oxygen, and/or phosphorus, reducing the demand for those goods but reducing their sell price for agro products
+Manufacturing planets/stations will sometimes have high local supply of iron, reducing demand for those goods but reducing their sell price for manufactured products.
+
+A few commodities, including Sweet Juice and Tiny Wizards, will have random supply and demant
+
+special types:
+creative - produces little or no cargo, has moderate demand for manufactured goods and food.
+research - produces little or no cargo, but has moderate demand for food, and has high demand for minerals and some manufactured goods
+military - produces no cargo, has moderate demand for food, 
+
+cargos:
+weet
+cheese
+dank cheese
+water
+oxygen
+phosphorus
+iron
+tiny wizards

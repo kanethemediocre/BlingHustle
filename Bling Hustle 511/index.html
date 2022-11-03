@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8"> 
+    <title>Bling Hustle 511 by Andrew Kane </title>
+    <style></style>
+	   <link rel="shortcut icon" href="favicon.ico" >
+   <link rel="icon" type="image/gif" href="animated_favicon1.gif" >
+</head>
+<body class="myElement" oncontextmenu="return false;">
+<canvas id="gameCanvas" width="1600" height="900"></canvas>
+<script type="text/javascript" src="umo.js"></script>
+<script type="text/javascript" src="upgrades.js"></script>	
+<script type="text/javascript" src="blasters.js"></script>	
+<script type="text/javascript" src="cargo.js"></script>
+<script type="text/javascript" src="bhcargos.js"></script>
+<script type="text/javascript" src="economy.js"></script>
+<script type="text/javascript" src="inventory.js"></script>
+<script type="text/javascript" src="shopitem.js"></script>
+<script type="text/javascript" src="shop.js"></script>
+<script type="text/javascript" src="bhshops.js"></script>
+<script type="text/javascript" src="texthandling.js"></script>
+<script type="text/javascript" src="graphics.js"></script>
+<script type="text/javascript" src="bubblesplosion.js"></script>
+<script type="text/javascript" src="bling.js"></script>
+
+<script type="text/javascript" src="dot.js"></script>
+<script type="text/javascript" src="spot.js"></script>
+<script type="text/javascript" src="axis.js"></script>
+<script type="text/javascript" src="segment.js"></script>
+<script type="text/javascript" src="plot.js"></script>
+<script type="text/javascript" src="challenge.js"></script>
+<script type="text/javascript" src="quiz.js"></script>
+<script type="text/javascript" src="quizblock.js"></script>
+<script type="text/javascript" src="emodule.js"></script>
+<script type="text/javascript" src="emtree.js"></script>
+<script type="text/javascript" src="bhstarttree.js"></script>
+
+
+<script type="text/javascript" src="notification.js"></script>
+<script type="text/javascript" src="player.js"></script>
+<script type="text/javascript" src="system.js"></script>	
+<script type="text/javascript" src="rainbows.js"></script>	
+<script type="text/javascript" src="homesystem.js"></script>
+<script type="text/javascript" src="trinidadsystem.js"></script>
+<script type="text/javascript" src="napasystem.js"></script>
+<script type="text/javascript" src="menusystem.js"></script>
+<script type="text/javascript" src="smallworldsystem.js"></script>		
+<script type="text/javascript" src="mission.js"></script>	
+<script type="text/javascript" src="homeoutposts.js"></script>
+<script type="text/javascript" src="trinidadoutposts.js"></script>
+<script type="text/javascript" src="napaoutposts.js"></script>
+<script type="text/javascript" src="napaturrets.js"></script>
+<script type="text/javascript" src="mouse.js"></script>
+<script type="text/javascript" src="keyboard.js"></script>
+<script type="text/javascript" src="storyfunction.js"></script>
+<script type="text/javascript" src="hud.js"></script>
+<script type="text/javascript" src="starfield.js"></script>
+<script type="text/javascript" src="about.js"></script>
+<script type="text/javascript" src="controls.js"></script>
+<script type="text/javascript" src="mousecontrols.js"></script>
+<script type="text/javascript" src="links.js"></script>
+<script type="text/javascript" src="mods.js"></script>
+<script type="text/javascript" src="turrets.js"></script>
+<script type="text/javascript" src="virtualkey.js"></script>
+<script type="text/javascript" src="bhvirtualkeys.js"></script>
+<script type="text/javascript" src="bhblasters.js"></script>
+<script type="text/javascript" src="superbomb.js"></script>
+<script type="text/javascript" src="npc.js"></script>
+<script type="text/javascript" src="npcai.js"></script>
+
+
+<script>
+//var blastersound1 = new Audio("./sounds/bubble4_short2.mp3");
+var blastersound1 = new Audio("./sounds/w11s1.mp3");
+var blastersound2 = new Audio("./sounds/close_door_12.mp3");
+var blastersound3 = new Audio("./sounds/Bubble5_trunc.mp3");
+var blastersound4 = new Audio("./sounds/bottleshortpop2.mp3");
+var blastersound5 = new Audio("./sounds/w5s0.mp3");
+var blastersound6 = new Audio("./sounds/chirpshort1.mp3");
+var blastersound7 = new Audio("./sounds/w7s0.mp3");
+var blastersound8 = new Audio("./sounds/shortburp.mp3");
+var blastersound8x0 = new Audio("./sounds/w8s0.mp3");
+var blastersound8x1 = new Audio("./sounds/w8s1.mp3");
+var blastersound8x2 = new Audio("./sounds/w8s2.mp3");
+var blastersound8x3 = new Audio("./sounds/w8s3.mp3");
+var blastersound8x4 = new Audio("./sounds/w8s4.mp3");
+var blastersound8x5 = new Audio("./sounds/w8s5.mp3");
+var blastersound9 = new Audio("./sounds/w9s0.mp3");
+var blastersound0 = new Audio("./sounds/chirpshort1.mp3");
+var blastersound10 = new Audio("./sounds/chirpshort1.mp3");
+//var blastersound11x1 = new Audio("./sounds/w11s1.mp3");
+var blastersound11x2 = new Audio("./sounds/w11s2.mp3");
+var blastersound11x3 = new Audio("./sounds/w11s3.mp3");
+var blastersound11x4 = new Audio("./sounds/w11s4.mp3");
+var blastersound11x5 = new Audio("./sounds/w11s5.mp3");
+var blastersound11x6 = new Audio("./sounds/w11s6.mp3");
+var blastersound11x7 = new Audio("./sounds/w11s7.mp3");
+var blastersound11x8 = new Audio("./sounds/w11s8.mp3");
+var blastersound11x9 = new Audio("./sounds/w11s9.mp3");
+var blastersound11x10 = new Audio("./sounds/w11s10.mp3");
+var blastersound11x11 = new Audio("./sounds/w11s11.mp3");
+var blastersound11x12 = new Audio("./sounds/w11s12.mp3");
+var blastersound12 = new Audio("./sounds/w12s4.mp3");
+var blastersound13 = new Audio("./sounds/w13s0.mp3");
+
+var blastersound14x0 = new Audio("./sounds/w14s0.mp3");
+var blastersound14x1 = new Audio("./sounds/w14s1.mp3");
+var blastersound14x2 = new Audio("./sounds/w14s2.mp3");
+var blastersound14x3 = new Audio("./sounds/w14s3.mp3");
+var blastersound14x4 = new Audio("./sounds/w14s4.mp3");
+var blastersound14x5 = new Audio("./sounds/w14s5.mp3");
+var blastersound15 = new Audio("./sounds/w15s0.mp3");
+var blastersound16 = new Audio("./sounds/w16s0.mp3");
+var blastersound17 = new Audio("./sounds/w17s0.mp3");
+
+var blastersound18x0 = new Audio("./sounds/w18s0.mp3");
+var blastersound18x1 = new Audio("./sounds/w18s1.mp3");
+var blastersound18x2 = new Audio("./sounds/w18s2.mp3");
+var blastersound18x3 = new Audio("./sounds/w18s3.mp3");
+var blastersound18x4 = new Audio("./sounds/w18s4.mp3");
+var blastersound18x5 = new Audio("./sounds/w18s5.mp3");
+var blastersound19 = new Audio("./sounds/shortburp.mp3");
+
+var enginesound1 = new Audio("./sounds/engine26.mp3");
+var damagesound1 = new Audio("./sounds/engine3.mp3");
+var cashsound1 = new Audio("./sounds/cash_register_2.mp3");
+var menuclick1 = new Audio("./sounds/menuclick1.mp3");
+var menuclick2 = new Audio("./sounds/simplechnk2.mp3");
+var menuclick3 = new Audio("./sounds/singleshot1.mp3");
+var menubuy1 = new Audio("./sounds/buyitem1.mp3");
+var respawn1 = new Audio("./sounds/respawn.mp3");
+var boost1 =  new Audio("./sounds/boingpowerup1.mp3");
+var missioncomplete1 = new Audio("./sounds/JazzStab1.mp3");
+var testsong = new Audio("./sounds/business2.mp3");
+//testsong.volume = 0;
+var asteroidsong1 = new Audio("./sounds/goodstart3.mp3");
+asteroidsong1.loop = true;
+//asteroidsong1.volume = 0;
+var bubblesong1 = new Audio("./sounds/dungeony1short2.mp3");
+bubblesong1.loop = true;
+//bubblesong1.volume = 0;
+var bubblesong2 = new Audio("./sounds/DangerCheese3.mp3");
+bubblesong2.loop = true;
+//bubblesong2.volume = 0;
+var menusong1 = new Audio("./sounds/positivesong1.mp3");
+menusong1.loop = true
+var musicvolume = 0;
+function setmusicvolume(newvolume){
+	testsong.volume = newvolume;
+	asteroidsong1.volume = newvolume;
+	bubblesong1.volume = newvolume;
+	bubblesong2.volume = newvolume;
+	menusong1.volume = newvolume;
+	}
+setmusicvolume(musicvolume);
+function pausemusic(){
+	testsong.pause();
+	asteroidsong1.pause();
+	bubblesong1.pause();
+	bubblesong2.pause();
+	menusong1.pause();
+	}
+// declare global variables/////////////////////////////////////////////////
+var mytime = Date.now();
+const FPS = 60;
+setInterval(update, 1000 / FPS);// set up interval (game loop)
+var canvas, context;
+canvas = document.getElementById("gameCanvas"); //canvas is the draw sauce.
+context = canvas.getContext("2d");
+context.canvas.width  = window.innerWidth-24; //This overrides the 1600x900 established in html.
+context.canvas.height = window.innerHeight-24;
+var vkeys = allvkeys(canvas.width,canvas.height);
+var comfy = false;
+if ((canvas.width>1200)&&(canvas.height>700)){comfy = true;}
+var time = 0; //Count of frames elapsed in game time.  Used to track in-game time related stuff.
+var nmeactive = 1; //targeting computer starts off
+var mdx = 0; //I think these were for the mouse?  Not sure if used.
+var mdy = 0;
+var diagnostic = 1; //0 is not displayed, 1 is weapon stats, 2 is cargo stats, 3 is ship stats.  Might get used for other items.
+var cheatmode = 0; //0 = not a cheater
+var ps = 1; //Player System.  Had to be abbreviated, systems[ps] is an important keyword
+var myi = 0; //For multiplayer, systems[ps].players[myi] is the user
+var starmode = 1; //0 for no starfield.
+let testfield2 = new Starfield2(30000,20000,64,1000,4000,128);
+var pz = 0;
+var menuabout = false;
+var menucontrols = false;
+var menulinks = false;
+var menumods = false;
+var menumousecontrols = false;
+var upgradesavestring="";
+var loadgamestring = "";
+var supercompass = 0;//0 is deactivated, 1 and 3 is navigation compass active, 2 and 3 is targeting compass active.
+var playerselect = 0;
+var playerweapon9superbomb = new Superbomb("orbitalsystem");
+var firsttree = bhstarttree();//from bhstarttree.js
+var testsavetree = firsttree.savestring();
+console.log(testsavetree);
+firsttree.loadstring(testsavetree);
+var testsavetree2 = firsttree.savestring();
+console.log(testsavetree2);
+//var allcargos = bhcargos();
+function pointingat(objdir,dir,distance,size){ //are you pointing at a thing?
+	var as = Math.atan2(size,distance); //how much angle does the thing occupy?
+	var dd = dir - objdir; //How much off the actual direction are you pointing?
+	while (dd > Math.PI){dd = dd - 2*Math.PI;} //This reduces the angle difference to within +- Math.PI
+	while (dd < -1*Math.PI){dd = dd + 2*Math.PI;}
+	while (as > Math.PI){as = as - 2*Math.PI;} //This reduces the angle difference to within +- Math.PI
+	while (as < -1*Math.PI){as = as + 2*Math.PI;}
+	if ((dd<as)&&(dd>-1*as)){ return 1;	}//-1*anglesize < deltadir < anglesize
+	else {return 0;}
+	}
+////////Declarations//////////////////////////////////////////////////////////////////////////////////
+////////This is basically the game world/////////////////////////////////////////////////////////////////
+let testsystem = new System(2,randname(4),0,0);
+let testsystem2 = new System(3,randname(4),0,0);
+let testsystem3 = new System(4,randname(4),0,0);
+let testsystem4 = new System(5,randname(4),0,0);
+let testsystem5 = new System(6,randname(4),0,0);
+let testsystem6 = new System(7,randname(4),0,0);
+let testsystem7 = new System(8,randname(4),0,0);
+let testsystem8 = new System(9,randname(4),0,0);
+let testsystem9 = new System(10,randname(4),0,0);
+let testsystem10 = new System(11,randname(4),0,0);
+let testsystem11 = new System(12,randname(4),0,0);
+let testsystem12 = new System(13,randname(4),0,0);
+let testsystem13 = new System(14,randname(4),0,0);
+let testsystem14 = new System(15,randname(4),0,0);
+let testsystem15 = new System(16,randname(4),0,0);
+let testsystem16 = new System(17,randname(4),0,0);
+let testsystem17 = new System(18,randname(4),0,0);
+let testsystem18 = new System(19,randname(4),0,0);
+let testsystem19 = new System(20,randname(4),0,0);
+let testsystem20 = new System(21,randname(4),0,0);
+let testsystem21 = new System(22,randname(4),0,0);
+let testsystem22 = new System(23,randname(4),0,0);
+let testsystem23 = new System(24,randname(4),0,0);
+let testsystem24 = new System(25,randname(4),0,0);
+let testsystem25 = new System(26,randname(4),0,0);
+let testsystem26 = new System(27,randname(4),0,0);
+let testsystem27 = new System(28,randname(4),0,0);
+let testsystem28 = new System(29,randname(4),0,0);
+let testsystem29 = new System(30,randname(4),0,0);
+let testsystem30 = new System(31,randname(4),0,0);
+let asteroidarena = new System(32,randname(4),0,0);
+asteroidarena.generateasteroidarena(1400,160,320,8000,20000,30000,40000,200,2,12,16);//generateasteroidarena(sunsize,minroidsize,maxroidsize,minradius,maxradius,shopradius,rodiradius,numroids,gangsize,numsuperboss,numshops){
+let bubbleparty1 = new System(33,randname(4),0,0);
+bubbleparty1.generatebubbleparty(160,320,12000,12000,160,2,3,16,0);//	generatebubbleparty(minroidsize,maxroidsize,maxroidradius,shopradius,numroids,gangsize,numsuperboss,numshops, heat){
+bubbleparty1.wraps = 13000;
+bubbleparty1.addrandombling(64);
+let bubbleparty2 = new System(34,randname(4),0,0);
+bubbleparty2.generatebubbleparty(160,240,12000,12000,160,1,3,16,2);//	generatebubbleparty(minroidsize,maxroidsize,maxroidradius,shopradius,numroids,gangsize,numsuperboss,numshops, heat){
+bubbleparty2.wraps = 13000;
+bubbleparty2.addrandombling(32);
+let playerradio = new Radio(" ");
+let home = new System(1,"Sool",0,0);
+let menu = new System(0,"Main Menu",0,0);
+let systems = [menu,home,testsystem,testsystem2,testsystem3,testsystem4,testsystem5,testsystem6,testsystem7,testsystem8,testsystem9,testsystem10,testsystem11,testsystem12,testsystem13,testsystem14,
+				testsystem15,testsystem16,testsystem17,testsystem18,testsystem19,testsystem20,testsystem21,testsystem22,testsystem23,testsystem24,testsystem25,testsystem26,
+				testsystem27,testsystem28,testsystem29,testsystem30,asteroidarena,bubbleparty1,bubbleparty2];
+systems[0].planets = loadmenusystem();
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////Home System/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//////Good example of how to load a customized system.  Planets and outposts can be abstracted to separate files///////
+/////////See homesystem.js to see how to set up the planets, and homeoutposts.js to see how to set up the stations.
+systems[1].planets = loadhomesystem();
+systems[1].outposts = loadhomeoutposts();
+systems[1].shops = allshops;  //Defined in bhshops.js, "allshops" actually is just all shops in the home system.
+var i=0;
+while(i<50){
+	systems[1].ecobalance(.05);
+	i++;
+	}
+systems[1].addcargosales(cargoitems);
+systems[1].addrandomgang(1,2,16);//These addrandomgang statements allow me to define how difficult and how many bots are at each planet
+systems[1].addrandomgang(2,3,3);
+systems[1].addrandomgang(3,4,2);
+//no moon bots
+systems[1].addrandomgang(5,3,1);
+//no deem, fobz, jupe, or heyo bots
+systems[1].addrandomgang(10,3,4);
+systems[1].addrandomgang(11,4,6);
+systems[1].addrandomgang(12,3,5);
+systems[1].addrandomgang(14,2,7);
+systems[1].addrandomgang(15,4,9);
+systems[1].addrandomgang(16,4,10);
+systems[1].addrandomgang(17,4,8);
+systems[1].addrandomgang(18,2,11);
+systems[1].addrandomgang(21,2,6);
+systems[1].addrandomgang(22,2,6);
+systems[1].addrandomgang(23,4,4);
+//no tune bots
+systems[1].addrandomgang(25,5,16);
+systems[1].addrandomtraders([5,11,16], 8, 4);
+
+systems[1].addcargomissions(4);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////now a simple randomly generated system////////////////////////////////
+systems[2].generatebasicsystem(5,2,16+2,80);//new lightly tested
+////////////////////////////////////////////////////////////////////////////
+//now another custom system, but with less precisely controlled enemy placement
+systems[3].planets = loadtrinidadsystem(); //from trinidadsystem.js
+systems[3].outposts = loadtrinidadoutposts(); //from trinidadoutposts.js
+systems[3].shops = trinidadshops;//trinidadshops is defined in bhshops.js
+systems[3].enemypopulate(5,4,16);
+systems[3].addrandombling(50);
+systems[3].addcargomissions(4);
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////Couple more basic systems//////////////////////////////////
+systems[4].generatebasicsystem(5,4,16+4,80);//new lightly tested
+systems[5].generatebasicsystem(5,5,16+5,80);//new lightly tested
+///////////////////////////////////////////////////////////////////////
+/////////Another custom system/////////////////////////////////////////////
+systems[6].planets = loadnapasystem(); //from napasystem.js
+systems[6].outposts = loadnapaoutposts(); //from napaoutposts.js
+systems[6].shops = napashops;//napashops is defined in bhshops.js
+systems[6].enemypopulate(6,2,6);
+systems[6].turrets = napaturrets();
+systems[6].addrandombling(50);
+systems[6].addcargomissions(4);
+///////////////////////////////////////////////////////////////////////////////////////
+///now generate the rest of the systems generically////////////////////////////////
+var speciali = 7;
+while (speciali<32){	//woo for 32 systems
+	systems[speciali].generatebasicsystem(5,speciali,16+speciali,80);//new lightly tested
+	speciali++;
+	}		
+//no kill missions for trin or napa?
+var i = 0;
+while (i<4){
+	var j = 0;
+	while (j<systems[1].shops.length){
+		systems[1].shops[j].addkillmission(systems[1].npcs,systems[1].planets,systems[1].outposts);
+		j=j+1;
+		}
+	i=i+1
+	}
+let xxxx = new Umo(0,0,550,"black");//26
+xxxx.name = "Xxxx";
+xxxx.setorbit(systems[1].planets[0],400000,0,-1);
+xxxx.parentid = 0;
+systems[1].planets.push(xxxx);
+let waldo = new Umo(0,0,1000,"purple");
+waldo.name = "Waldo";
+waldo.setorbit(systems[1].planets[0], 400000, Math.PI, -1);
+waldo.parentid = 0;
+systems[1].planets.push(waldo);
+var i = 2;
+while (i<systems.length){
+	systems[i].planets.push(xxxx);
+	systems[i].planets.push(waldo);
+	//systems[i].addrandomgang(systems[i].planets.length-2,8+i,32+i);
+	//above causes hangup, not sure why.
+	i=i+1;
+	}
+ps = 0;
+var aplayer = new Player();
+aplayer.initialize(1000,200,1);
+var i=0;
+while(i<systems.length){
+	systems[i].players.push(aplayer);
+	i++;
+}
+aplayer.ship.x = 0;
+aplayer.ship.y = -100;
+//var testboom = new Bubblesplosion(3,30,"red",systems[ps].players[0].ships);
+var testturret = new Turret("friendly",systems[1].planets[4],0,150);
+testturret.anchorvisible = false;
+testturret.pivotvisible = false;
+testturret.active = false;
+var murcturret1 = new Turret("enemy",systems[1].planets[1],0,192);
+var murcturret2 = new Turret("enemy",systems[1].planets[1],Math.PI,192);
+var murcturret3 = new Turret("enemy",systems[1].planets[1],Math.PI/2,192);   
+var murcturret4 = new Turret("enemy",systems[1].planets[1],3*Math.PI/2,192);
+var turrets = [testturret,murcturret1,murcturret2,murcturret3,murcturret4];
+var i=0;
+while (i<turrets.length){
+	turrets[i].pivot.hp = 4000;
+	turrets[i].pivot.maxhp = 4000;
+	turrets[i].pivot.shield = 1000;
+	turrets[i].pivot.maxshield = 1000;
+	i++;
+	}
+systems[1].turrets = turrets;
+
+//bosses with turrets must be added after that line
+systems[1].addsuperboss(96,5,4000,1000,320,80,26);//addsuperboss(size,turretnum,hp,shield,turrethp,turretshield,parentid){
+systems[1].addsuperboss(64,3,2500,800,320,80,26);//addsuperboss(size,turretnum,hp,shield,turrethp,turretshield,parentid){
+systems[1].addsuperboss(80,4,3200,1000,320,80,26);//addsuperboss(size,turretnum,hp,shield,turrethp,turretshield,parentid){
+systems[1].addsuperboss(128,7,5000,1200,320,80,26);//addsuperboss(size,turretnum,hp,shield,turrethp,turretshield,parentid){
+
+//systems[1].addbling(systems[1].planets[5],20,50,10);
+systems[1].addrandombling(50);
+////////////////////////////////testing NPC class/////////////////////////
+//var npc0 = new NPC(0);
+//var npc1 = new NPC(1);
+//var npc2 = new NPC(2);
+//var npc3 = new NPC(3);
+//var testnpcs = [npc0,npc1,npc2,npc3];
+//testai = new NPCAI("tradeguild","trader",systems[1].planets[3])
+
+var testeco = new Economy();
+
+
+//npc0.update1(systems[1],time);//just a test
+
+//systems[1].npcs = testnpcs; //disabled for release
+
+menusong1.play();
+
+///GAMELOOP/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////update function this is the game loop bruh////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function update() {
+	var truetime = Date.now();
+  	var servertime = mytime+Math.floor(time*1000/FPS);
+  	if (servertime<truetime){
+	time++;
+	var vwx = systems[ps].players[myi].ship.x;
+	var vwy = systems[ps].players[myi].ship.y;
+	var myplayer = systems[ps].players[myi];
+	var myship = systems[ps].players[myi].ship; 
+	context.fillStyle = "black";//Background is black
+	context.fillRect(0, 0, canvas.width, canvas.height); //rectangle the size of the canvas.
+	if (ps>0){
+		if (myplayer.mapactive == 0){
+			context.font = "20px Ariel";
+			context.fillStyle = "white";
+			context.fillText("Map is off.",16,canvas.height-16);
+			}
+		if (myplayer.mapactive == 1){drawmap(systems[ps].planets,systems[ps].outposts,myplayer.mapscale,canvas.width/2,canvas.height/2, vwx, vwy, myplayer.radarrange,systems[ps].npcs,myplayer);}//centered map
+		if (myplayer.mapactive == 2){drawmap(systems[ps].planets,systems[ps].outposts,myplayer.mapscale,200,canvas.height-150, vwx, vwy, myplayer.radarrange,systems[ps].npcs,myplayer);//corner map c 
+			context.fillStyle = "black";//Background is black
+			context.fillRect(0, 0, canvas.width, canvas.height-300); //erase non-corner map area
+			context.fillRect(400, canvas.height-300, canvas.width,canvas.height); //erase non-corner map area
+			context.beginPath(); //Border of map rectangle
+			context.rect(0,canvas.height-300,400,300); //2*this.s wide
+			context.lineWidth = 4; 
+			context.strokeStyle = "blue";
+			context.stroke();	
+			}
+		}
+	if (starmode == 1){	
+		if (ps==0){//ONLY affects menu system
+			pz=pz+.01;
+			if (pz>64){pz=0;}
+		}else{//This clause normally decides pz
+			pz = (ps-1)*4+(waldo.s/4400);
+			}
+		testfield2.draw(vwx,vwy,pz);
+		}
+	//testmodule.draw(400,400);
+	//Menu system handling///////////////////////////////////////////////
+	if (ps==0){
+		//myship.x = 0;
+		//myship.y = -100;
+		myship.vx = 0;
+		myship.vy = 0;
+		context.font = "160px Ariel";
+		context.fillStyle = "yellow";
+		context.fillText("BLING   HUSTLE",canvas.width/2-550,120);	
+		if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[0])){
+			//menuabout = true;
+			//menucontrols = false;
+			myship.x = -10000;
+			myship.y = -100;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[1])){//systems[ps].players[0].blasters[1].bombs[0].collide(systems[ps].planets[0])
+			ps = 1;
+			pausemusic();
+			//systems[ps].npcs = testnpcs;
+			//var testpolysave = myplayer.savepolygon();
+			//myplayer.loadpolygon(testpolysave);
+			//systems[ps].npcs[0].ship.setorbit(systems[ps].planets[0], 32100, 0.215, 1);//this actually does work.
+			//systems[ps].npcs[1].ship.setorbit(systems[ps].planets[0], 32200, 0.215, 1);
+			//systems[ps].npcs[2].ship.setorbit(systems[ps].planets[0], 32300, 0.215, 1);
+			//systems[ps].npcs[3].ship.setorbit(systems[ps].planets[0], 32400, 0.215, 1);
+			//systems[ps].npcs[3].ai.behavior = "guardbot";//.setorbit(systems[ps].planets[0], 32400, 0.215, 1);
+			//systems[ps].npcs[3].ai.homeplanet = 2;//.setorbit(systems[ps].planets[0], 32400, 0.215, 1);
+			myship.setorbit(systems[ps].planets[0], 32000, 0.215, 1);
+			myplayer.storystate = 0;//adjust for testing of stuff, should be 0 on major releases.
+			myplayer.planetarychart = systems[ps].generateplanetlist();
+			//testsong.volume = 0.25;
+			//testsong.play();
+			console.log("npcs: "+systems[ps].npcs.length)
+			
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[2])){
+			ps = 1;
+			pausemusic();
+			myship.setorbit(systems[ps].planets[0], 32000, 0.215, 1);
+			myplayer.storystate = 999;
+			myplayer.money = 2000;
+			myplayer.task = "Profit";
+			myplayer.planetarychart = systems[ps].generateplanetlist();
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[3])){
+			ps = 7;
+			pausemusic();
+			myship.setorbit(systems[ps].planets[3], 1000, 0.4, 1);
+			var randdir = Math.random()*2*Math.PI;
+			xxxx.setorbit(systems[ps].planets[0], 400000, randdir+Math.PI, -1);
+			waldo.setorbit(systems[ps].planets[0], 400000, randdir, -1);
+			//special system stuff
+			myplayer.storystate = 999;
+			myplayer.money = 2000;
+			myplayer.task = "Profit";
+			myplayer.planetarychart = systems[ps].generateplanetlist();
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[4])){
+			menuabout = false;
+			menucontrols = true;
+			menulinks = false;
+			menumods = false;
+			menumousecontrols = false;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[5])){
+			ps = 32;
+			myplayer.mapscale = 64;
+			pausemusic();
+			asteroidsong1.play();
+			console.log(systems[ps].planets[0].x);
+			myship.setorbit(systems[ps].planets[0], 21000, 0, 1);
+			var randdir = Math.random()*2*Math.PI;
+			xxxx.setorbit(systems[ps].planets[0], 400000, randdir+Math.PI, -1);
+			waldo.x = 1000000;
+			waldo.vy = 10;
+			//waldo.setorbit(systems[ps].planets[0], 1500, randdir, -1);
+			//systems[ps].waldosize = 100000000;
+			console.log(myship.x);
+			myplayer.storystate = 999;
+			myplayer.money = 3001;
+			myplayer.task = "Collect Bling";
+			myplayer.planetarychart = systems[ps].generateplanetlist();
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[6])){
+			ps = 33;
+			myplayer.mapscale = 32;
+			pausemusic();
+			bubblesong1.play();
+			//console.log(systems[ps].planets[0].x);
+			//myship.setorbit(systems[ps].planets[0], 21000, 0, 1);
+			systems[ps].placenear(myplayer.ship,12000,0);
+			//xxxx.setorbit(systems[ps].planets[0], 400000, randdir+Math.PI, -1);
+			//waldo.setorbit(systems[ps].planets[0], 400000, randdir, -1);
+			console.log(myship.x);
+			myplayer.storystate = 999;
+			myplayer.money = 3001;
+			myplayer.task = "Collect Bling";
+			myplayer.planetarychart = systems[ps].generateplanetlist();
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[7])){
+			ps = 34;
+			myplayer.mapscale = 32;
+			pausemusic();
+			bubblesong2.play();
+			systems[ps].placenear(myplayer.ship,3000,0);
+			//console.log(systems[ps].planets[0].x);
+			//myship.setorbit(systems[ps].planets[0], 21000, 0, 1);
+			//var randdir = Math.random()*2*Math.PI;
+			//xxxx.setorbit(systems[ps].planets[0], 400000, randdir+Math.PI, -1);
+			//waldo.setorbit(systems[ps].planets[0], 400000, randdir, -1);
+			console.log(myship.x);
+			myplayer.storystate = 999;
+			myplayer.money = 3001;
+			myplayer.task = "Collect Bling";
+			myplayer.planetarychart = systems[ps].generateplanetlist();
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[8])){
+			myship.x = 0;
+			myship.y = -100;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[9])){
+			myship.x = 10000;
+			myship.y = -100;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[10])){
+			myship.x = 0;
+			myship.y = -100;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[11])){
+			menuabout = false;
+			menucontrols = false;
+			menulinks = true;
+			menumods = false;
+			menumousecontrols = false;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[12])){
+			menuabout = true;
+			menucontrols = false;
+			menulinks = false;
+			menumods = false;
+			menumousecontrols = false;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[13])){
+			menuabout = false;
+			menucontrols = false;
+			menulinks = false;
+			menumods = true;
+			menumousecontrols = false;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[14])){
+			myship.x = 0;
+			myship.y = -100;
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[15])){
+			if (myplayer.blasters[1].bombs[0].timer>6){	
+				musicvolume = musicvolume + 0.1;
+				if (musicvolume>1){musicvolume = 1;}
+				setmusicvolume(musicvolume);
+				}
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[16])){
+			if (myplayer.blasters[1].bombs[0].timer>6){
+				musicvolume = musicvolume - 0.1;
+				if (musicvolume<0){musicvolume = 0;}
+				setmusicvolume(musicvolume);
+				}
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[17])){
+			myship.x = -20000;
+			myship.y = -100;
+			menusong1.play();
+			}
+		else if (myplayer.blasters[1].bombs[0].collide(systems[ps].planets[18])){
+			menuabout = false;
+			menucontrols = false;
+			menulinks = false;
+			menumods = false;
+			menumousecontrols = true;
+			}
+		else if (menuabout){
+			context.fillStyle = "white";
+			context.font = "12px Verdana";
+			fillwrappedtext(abouttext,128,16, 240,canvas.height-240);//y this different?
+			}//display stuff here.
+		else if (menucontrols){
+			context.fillStyle = "white";
+			context.font = "12px Verdana";
+			var i=0;
+			while (i<controltext.length){ //controltext is an array of strings
+				fillwrappedtext(controltext[i],200,16, 240,canvas.height-240+i*16);
+				i=i+1;
+				}
+			}
+		else if (menulinks){
+			context.fillStyle = "white";
+			context.font = "12px Verdana";
+			var i=0;
+			while (i<linktext.length){ //controltext is an array of strings
+				fillwrappedtext(linktext[i],200,16, 240,canvas.height-240+i*16);
+				i=i+1;
+				}
+			}
+		else if (menumods){
+			context.fillStyle = "white";
+			context.font = "12px Verdana";
+			var i=0;
+			while (i<modtext.length){ //controltext is an array of strings
+				fillwrappedtext(modtext[i],200,16, 240,canvas.height-240+i*16);
+				i=i+1;
+				}
+			}
+		else if (menumousecontrols){
+			context.fillStyle = "white";
+			context.font = "12px Verdana";
+			fillwrappedtext(mousecontroltext,128,16, 240,canvas.height-240);//
+			}
+		}//done with menu system handling///////////////////////////////////////////
+//Outpost stuff all handled here.....
+	var i=0;
+	while (i<systems[ps].outposts.length){ //for all outposts
+		var qq = 0;
+		while (qq<systems[ps].players.length){
+			if (systems[ps].players[qq].ship.distance(systems[ps].outposts[i])<160){
+				systems[ps].outposts[i].dock(systems[ps].players[qq].ship);
+				systems[ps].players[qq].dockstate = i;
+				}
+			qq++;
+			}
+		var j= 0;//This mission handling needs an overhaul to handle multiple players. Mission class now has taker member equal to name of player that took the mission.
+		while (j<systems[ps].shops[i].missions.length){//for all missions (j) from shop at outpost (i)
+			var k = 0;
+			while (k<systems[ps].players.length){
+				var mischeck = systems[ps].shops[i].missions[j].check(systems[ps].players[k],systems[ps].ships,systems[ps].planets,playerradio);//theships,theplanets,theradio
+				if (mischeck[0]>0){
+					systems[ps].players[k].money = systems[ps].players[k].money + mischeck[0];
+					if (mischeck[1]>0){systems[ps].players[k].storystate = mischeck[1];}
+					}
+				k++;
+				}
+			j++;
+			}
+		i++;
+		}
+////////////////////////waldo stuff, special planet/maybe wormhole////////////////////////////
+	if (myship.distance(waldo)>100){
+		waldo.s = systems[ps].waldosize / ((myship.distance(waldo)*myship.distance(waldo)*myship.distance(waldo))/1000000);// hz * hz / dist * dist
+		}//Size should be inversely related to the distance from event horizon
+	else {waldo.s = 100;}
+	var solarignore = 0;
+	var solarresist = 1;
+	if (myplayer.shieldbonus == "solar"){
+		solarignore = 2;
+		solarresist = 0.25
+		}
+	myplayer.solarpain = .025*systems[ps].planets[0].m/(myship.distance(systems[ps].planets[0])*myship.distance(systems[ps].planets[0]))*solarresist;
+	if ( myplayer.solarpain>(1.125+solarignore) ) { myplayer.ship.damage(Math.floor(8*myplayer.solarpain)/8-1-solarignore); }//Once this is settled it should move to the system update sequence.
+	//console.log(myplayer.solarpain);
+	waldo.m = waldo.s*waldo.s*waldo.s;//Update mass according to size
+	waldo.gravitate(myship); //pull only player ship
+	waldo.c = randcolor(); //groovy
+	systems[ps].planets[0].gravitate(waldo);//waldo orbits sun, nothing else affects it.
+	waldo.update1();
+	waldo.drawplanet(vwx,vwy);
+	if (waldo.collide(myship)){
+		ps = ps+1;
+		if (ps > systems.length-1){
+			ps = 1;
+			}
+		pz = 0;
+		var randdir = Math.random()*2*Math.PI;
+		xxxx.setorbit(systems[ps].planets[0], 400000, randdir+Math.PI, -1);
+		waldo.setorbit(systems[ps].planets[0], 400000, randdir, -1);
+		myship.vx = 0;
+		myship.vy = 0;
+		myplayer.navtarget = 0;
+		myplayer.shiptarget = 0;
+		myplayer.planetarychart = systems[ps].generateplanetlist();
+		}
+
+/////////////////Determine which planets are close enough to be "active", and activate relevant ships.  Not used yet.///////////////////////////////////////////////////
+	var i = systems[ps].planets.length;
+	while (i>0){//For all planets...
+		i=i-1;
+		var adist = myship.distance(systems[ps].planets[i]);
+		if ((systems[ps].planets[i].active)&&(adist>30000)){//If planet is already active and far away 
+			systems[ps].planets[i].active = false; //deactivate
+		}else if ((systems[ps].planets[i].active==false)&&(adist<25000)){//else if planet is inactive and close
+			systems[ps].planets[i].active = true; //activate
+			}	
+		}
+	var i = systems[ps].ships.length;
+	while (i>0){ 
+		i=i-1;
+		systems[ps].ships[i].active = systems[ps].planets[systems[ps].ships[i].parentid].active;
+		}
+
+///////////////////Drawing System/////////////////////////////////////////////////////////////////////////////////////
+	systems[ps].draw2(vwx,vwy); //draws home system planets, ships, and bot bombs if close
+	if (ps>0){//ps==0 is the menu system.  Hud looks dumb here, and I want room for other stuff.
+		if (supercompass%2==1){
+			systems[ps].drawplanetfinder(0,400);
+			}
+		if (supercompass>1){
+			systems[ps].drawshipfinder(0,300);
+			}
+		hud(myi);//myi is the player index.  
+		}
+//////////////////updating moved to end of stack////////////////
+
+////////////Autopilot behavior section//Formerly AI section, AI behavior moved to System.updateall()/////////////////////////////////////////////
+	if (myplayer.autopilot == 1){
+		if (myplayer.navactive==1){myship.seek3(systems[ps].planets[myplayer.navtarget],20,30,time, 1500);}
+		if (myplayer.navactive==2){myship.seek3(systems[ps].outposts[myplayer.navtarget],20,30,time, 1500);}
+		}
+	if (myplayer.autopilot == 2){
+		if (myplayer.navactive==1){ myship.hold(systems[ps].planets[myplayer.navtarget],30,time); }
+		if (myplayer.navactive==2){ myship.hold(systems[ps].outposts[myplayer.navtarget],30,time); }
+		}
+	if (myplayer.autopilot == 3){
+		var orbitr = 1000;
+		var gravy = systems[ps].planets[myplayer.navtarget].m*.0003 / (orbitr*orbitr);  //gMm/r^2, where m is 1;
+		var orbitspeed = Math.sqrt(gravy*orbitr);  //a = v^2/r, a* r = v^2, v = sqrt(a*r)
+		myship.seek4(systems[ps].planets[myplayer.navtarget],20,time,orbitr,orbitspeed);
+		}
+///////Respawn handling////////////////////////////////////////////////////////////////////////////////////////////
+	j = 0;//bot and old player respawn
+	while (j<systems[ps].ships.length){
+		if ((systems[ps].ships[j].deadtime < 0) && (systems[ps].ships[j].hp == -1000)){ //Death is handled in the update1
+			systems[ps].ships[j].respawn(systems[ps].planets[systems[ps].ships[j].parentid]); 
+			}
+		j++;
+		}
+	j = 0;//new player array respawn
+	while (j<systems[ps].players.length){
+		if ((systems[ps].players[j].ship.deadtime < 0) && (systems[ps].players[j].ship.hp == -1000)){ //Death is handled in the update1
+			systems[ps].players[j].ship.respawn(systems[ps].planets[systems[ps].players[j].ship.parentid]); 
+			}
+		j++;
+		}
+//////////Mouse turning/////////////////////////////////
+	if (systems[ps].players.length>0){//This prevents errors at start
+		if (myplayer.autopilot == 0){myship.d = myplayer.moused+Math.PI;} //If no autopilot, use mous to turn.
+	}
+//////////////////////////////////Weapon 6 in-loop code, its special like that.   Now handles any beam weapons.////////////////////////////////////////////////////////////////////////////////////
+	var qq = 0;
+	while(qq<systems[ps].players.length){
+		var aplayer = systems[ps].players[qq];
+		aship = systems[ps].players[qq].ship; //sus
+		if((aplayer.mousestate==1)&&(aplayer.blasters[aplayer.wep].type == "beam")&&(aplayer.energy>aplayer.blasters[aplayer.wep].ecost)){ 
+			var range = aplayer.blasters[aplayer.wep].timer+32;
+			var n1 = Math.floor(time/4)%6;
+			var n2 = Math.floor(time/4+1)%6;
+			var n3 = Math.floor(time/4+2)%6;
+			var beamcolor1 = rainbow(n1);
+			var beamcolor2 = rainbow(n2);
+			var beamcolor3 = rainbow(n3);
+			//var xog = canvas.width/2;//x origin
+			var xog = aship.x - vwx+canvas.width/2;
+			//var yog = canvas.height/2;//y origin
+			var yog = aship.y - vwy+canvas.height/2;
+			var cosd = Math.cos(aship.d);//cos of ship direction
+			var sind = Math.sin(aship.d);
+			var range = aplayer.blasters[aplayer.wep].timer+32;
+			var startx = xog+cosd*32;
+			var starty = yog+sind*32
+			var endx = xog+cosd*range;
+			var endy = yog+sind*range;
+			drawbeam(startx,starty,endx,endy,time);
+			aplayer.energy = aplayer.energy - aplayer.blasters[aplayer.wep].ecost;
+			var i = systems[ps].ships.length;
+			while (i>0){//For all ships 
+				i = i - 1; 
+				var targetdistance = aship.distance(systems[ps].ships[i]);
+				if (targetdistance<range){
+					var ptest = pointingat( aship.directionof(systems[ps].ships[i]), aship.d, aship.distance(systems[ps].ships[i]), systems[ps].ships[i].s)
+					if (ptest == 1){
+						systems[ps].ships[i].damage(aplayer.blasters[aplayer.wep].hurt);
+						if (systems[ps].ships[i].hp<0){
+							if (systems[ps].ships[i].ai=="enemy"){
+								var getcash = Math.floor(Math.random()*21+10)*systems[ps].ships[i].level;
+								aplayer.money = aplayer.money + getcash;
+								aplayer.gotmoney = [30,getcash];
+								cashsound1.play();
+								var boomstages = Math.floor(4+systems[ps].ships[i].level/2);
+								systems[ps].explosions.push(new Bubblesplosion(boomstages,0.375,"red",systems[ps].ships[i]));
+								systems[ps].bling.push(new Bling(systems[ps].ships[i].x,systems[ps].ships[i].y,systems[ps].ships[i].vx,systems[ps].ships[i].vy,systems[ps].ships[i].level*5));
+							}else if (systems[ps].ships[i].ai=="trader"){
+								systems[ps].explosions.push(new Bubblesplosion(4,0.375,"red",systems[ps].ships[i]));
+								aplayer.money = aplayer.money - 1000;
+								aplayer.gotmoney = [30, -1000];
+								//somebadsound.play();
+								}
+							}
+						}
+					}
+				}
+			}
+	//////////////////////////////////Weapon 8 in-loop code, its special like that.  Now designed to deal with ANY rapid blaster.//////////////////////////////////////////////////////////////////////////////
+		if ((aplayer.blasters[aplayer.wep].type == "rapid")){
+			if((aplayer.mousestate==1)&&(time%(aplayer.blasters[aplayer.wep].special1)==0)&&(aplayer.energy>aplayer.blasters[aplayer.wep].ecost)){ //mousestate is always evaluating true, so it fires constantly.  oof, why?
+				var n = Math.floor(time/(aplayer.blasters[aplayer.wep].special1))%aplayer.blasters[aplayer.wep].bombs.length;
+				aship.launchbomb(aplayer.blasters[aplayer.wep].bombs[n],aplayer.blasters[aplayer.wep].speed,aplayer.blasters[aplayer.wep].timer);
+				aplayer.energy = aplayer.energy - aplayer.blasters[aplayer.wep].ecost;
+				//if (time%24==0){blastersound8.play();}
+				if (aplayer.wep==8){var sounds = [blastersound8x0,blastersound8x1,blastersound8x2,blastersound8x3,blastersound8x4,blastersound8x5];}
+				if (aplayer.wep==18){var sounds = [blastersound18x0,blastersound18x1,blastersound18x2,blastersound18x3,blastersound18x4,blastersound18x5];}
+				var soundi = n%6;
+				sounds[soundi].play();
+				}
+			}
+		if ((aplayer.blasters[aplayer.wep].type == "rapidmultiplex")){
+			if((aplayer.mousestate==1)&&(time%(aplayer.blasters[aplayer.wep].special1)==0)&&(aplayer.energy>aplayer.blasters[aplayer.wep].ecost)){  //mousestate is always evaluating true, so it fires constantly.  oof, why?
+				aplayer.blasters[aplayer.wep].fire(aplayer,time);
+				aplayer.energy = aplayer.energy - aplayer.blasters[aplayer.wep].ecost;
+				if (aplayer.wep==15){blastersound15.play();}
+			}
+		}
+	/////////////////////////////////weapon 9 in-loop code, is even more special////////////////////////////////////////////////////////////////
+		if (aplayer.blasters[9].bombs[0].timer>0){
+			playerweapon9superbomb.maintainorbitbomb();
+			}
+	///////weapon 10 in-loop code, probe is special//////////////////////////////////////////////////
+		if (aplayer.wep==0){//wep == 11 to disable, wep should ==0
+			var j = systems[ps].ships.length;
+			while (j>1){ //for all ships...
+				j=j-1;
+				if (aplayer.blasters[0].bombs[0].collide(systems[ps].ships[j])){//Checks for collision only
+					if (aplayer.probemode == 0){//clones color
+						aship.c = systems[ps].ships[j].c;
+						aship.c2 = systems[ps].ships[j].c2;
+					}else if (aplayer.probemode == 1){//clones shape
+						aship.polytheta = systems[ps].ships[j].polytheta;//Applies enemy polygon to player
+						aship.polyradius = systems[ps].ships[j].polyradius;
+					}else if (aplayer.probemode == 2){
+					//	constructor(name,description,price,type,basedamage,updamage,maxdamage,basespeed,upspeed,maxspeed,baseboom,upboom,maxboom,basen,upn,maxn,basetimer,uptimer,maxtimer,nrg,bombcolor,ID){
+						var bb = systems[ps].botbombs[j];
+						aplayer.blasters[10] = new Blaster(""+systems[ps].ships[j].name+"s blaster","The Pclone takes the properties of the weapon used by the last probed enemy.",5000,"plain",
+						bb.hurt,0,0,12,0,0,bb.boombuff,0,0,1,0,0,80,0,0,25,bb.c,"ID not used");//Sadly not many properties to pull, bot weapons are not varied enough.
+						aplayer.blasters[10].phas = true;
+						}
+					}
+				}
+			var j = systems[ps].turrets.length;
+			while (j>1){ //for all ships...
+				j=j-1;
+				if (aplayer.blasters[0].bombs[0].collide(systems[ps].turrets[j].pivot)){//Checks for collision only
+					if (aplayer.probemode == 0){//clones color
+						aship.c = systems[ps].turrets[j].pivot.c;
+						aship.c2 = systems[ps].turrets[j].pivot.c2;
+					}else if (aplayer.probemode == 1){//clones shape
+						aship.polytheta = systems[ps].turrets[j].pivot.polytheta;//Applies enemy polygon to player
+						aship.polyradius = systems[ps].turrets[j].pivot.polyradius;
+					}else if (aplayer.probemode == 2){
+					//	constructor(name,description,price,type,basedamage,updamage,maxdamage,basespeed,upspeed,maxspeed,baseboom,upboom,maxboom,basen,upn,maxn,basetimer,uptimer,maxtimer,nrg,bombcolor,ID){
+						var bb = systems[ps].turrets[j].bombs[0];
+						aplayer.blasters[10] = new Blaster("Some Turret's blaster","The Pclone takes the properties of the weapon used by the last probed enemy.",5000,"plain",
+						bb.hurt,0,0,12,0,0,bb.boombuff,0,0,1,0,0,80,0,0,25,bb.c,"ID not used");//Sadly not many properties to pull, bot weapons are not varied enough.
+						aplayer.blasters[10].phas = true;
+						}
+					}				
+				}
+			}
+		qq++;
+		}
+//////////////////////////Bling regeneration stuff goes here///////////////////////
+if (ps>0){systems[ps].blingregen();}
+if ((ps==32)&&(time%600==0)){//Special asteroid arena stuff.  Randomly levels up a bot every 20 seconds
+	var lub = Math.floor(Math.random()*systems[ps].ships.length)//level up bot
+	systems[ps].levelup(lub,1);
+	var i=1;
+	while(i<systems[ps].planets.length){
+		var dv2 = systems[ps].planets[i].vx*systems[ps].planets[i].vx + systems[ps].planets[i].vy*systems[ps].planets[i].vy;
+		var distance = systems[ps].planets[0].distance(systems[ps].planets[i]);
+		var gravy = systems[ps].planets[0].m*.0003 / (distance*distance);  //gMm/r^2, where m is 1;
+		//var escspeed = Math.sqrt(gravy*distance*2);
+		var esc2 = gravy*distance*2 
+		if (dv2>esc2){
+		console.log("slowcheese");
+			systems[ps].planets[i].vx = systems[ps].planets[i].vx*0.75
+			systems[ps].planets[i].vy = systems[ps].planets[i].vy*0.75
+			}
+		if ((distance>30000)&&(dv2<9)){systems[ps].planets[i].push(0.25,systems[ps].planets[i].directionof(systems[ps].planets[0])); }
+		i++;
+		}
+	}
+systems[ps].updateall(time); //Updates everthing in system
+systems[ps].gravitateall(); //gravitates everything in system
+systems[ps].collideself(); //executes all collisions between objects in the system.
+storycheck(0);//0 is player index
+if(time%2==0){
+    var truetime = Date.now();
+    var servertime = mytime+Math.floor(time*1000/FPS);
+    if (time%(FPS*2)==0){console.log("True time: "+truetime+"Server time: "+servertime+" dt: "+(truetime-servertime));}
+    var lagging = truetime-(servertime+1000/FPS);
+	if (lagging>1000){
+		//console.log("Lagging too far, not correcting "+(truetime-servertime)+" ms");
+		}
+	else if (lagging>0){
+	  update();
+      //console.log("Running extra frame because server is behind "+(truetime-servertime)+" ms");
+      }
+    }
+
+  }else{
+	//console.log("Extra loop skipped because server is ahead "+(servertime-truetime)+"ms");
+	}
+
+}
+
+</script>
+</body>
+<input type="button" id="dwn-btn" value="Download latest save"/>
+ <label for="input-file">[K] saves your game [L] loads uploaded save file. </label><br>
+ <input type="file" id="input-file">
+ <textarea id="content-target"></textarea>
+<script>
+	document.getElementById('input-file')
+  .addEventListener('change', getFile)
+
+function getFile(event) {
+	const input = event.target
+	//console.log(event.target);
+  if ('files' in input && input.files.length > 0) {
+	  placeFileContent(
+      document.getElementById('content-target'),
+      input.files[0])
+  }
+}
+
+function placeFileContent(target, file) {
+	readFileContent(file).then(content => {
+  	target.value = content
+	  loadgamestring = content;
+  }).catch(error => console.log(error))
+}
+
+function readFileContent(file) {
+	const reader = new FileReader()
+  return new Promise((resolve, reject) => {
+    reader.onload = event => resolve(event.target.result)
+    reader.onerror = error => reject(error)
+    reader.readAsText(file)
+  })
+}
+</script>
+
+</html>
