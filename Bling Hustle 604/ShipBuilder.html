@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8"> 
+    <title>BH Ship Builder 586 by Andrew Kane </title>
+    <style></style>
+	   <link rel="shortcut icon" href="favicon.ico" >
+   <link rel="icon" type="image/gif" href="animated_favicon1.gif" >
+</head>
+<body class="myElement" oncontextmenu="return false;">
+<canvas id="gameCanvas" width="1000" height="800"></canvas>
+<script type="text/javascript" src="umo.js"></script>
+<script type="text/javascript" src="graphics.js"></script>
+<script type="text/javascript" src="texthandling.js"></script>
+<script type="text/javascript" src="mouseforbuilder.js"></script>
+<script type="text/javascript" src="keyboard.js"></script>
+<script type="text/javascript" src="virtualkey.js"></script>
+<script type="text/javascript" src="upgrades.js"></script>	
+<script type="text/javascript" src="blasters.js"></script>	
+<script type="text/javascript" src="npc.js"></script>
+<script type="text/javascript" src="npcai.js"></script>
+<script>
+
+
+
+
+var kappearance=new Virtualkey(0,"Appearance",50,20);//constructor(key,label,x,y){
+var kship=new Virtualkey(1,"Ship",200,20);//constructor(key,label,x,y){
+var kblaster=new Virtualkey(2,"Blaster",350,20);//constructor(key,label,x,y){
+var kai=new Virtualkey(3,"AI",500,20);//constructor(key,label,x,y){
+
+var mainmenukeys =[kappearance,kship,kblaster,kai];
+
+var kcolor1=new Virtualkey(0,"Color 1",50,60);//constructor(key,label,x,y){
+var kcolor2=new Virtualkey(1,"Color 2",200,60);//constructor(key,label,x,y){
+var kinsert=new Virtualkey(2,"Insert Point",350,60);//constructor(key,label,x,y){
+var kremove=new Virtualkey(3,"Remove Point",500,60);//constructor(key,label,x,y){
+
+var appearancemenukeys =[kcolor1,kcolor2,kinsert,kremove];
+function appearanceactions(action,thenpc){
+	if (action==0){thenpc.ship.c=randcolor();}
+	if (action==1){thenpc.ship.c2=randcolor();}
+	}
+
+
+var k1=new Virtualkey(0,"Armor",50,60);//constructor(key,label,x,y){
+var k2=new Virtualkey(1,"Shield",200,60);//constructor(key,label,x,y){
+var k3=new Virtualkey(2,"Shieldregen",350,60);//constructor(key,label,x,y){
+var k4=new Virtualkey(3,"Size",500,60);//constructor(key,label,x,y){
+var shipmenukeys =[k1,k2,k3,k4];
+function shipactions(action,thenpc){
+	if (action==0){thenpc.ship.maxhp = 999;}
+	if (action==1){thenpc.ship.maxshield = 999;}
+	if (action==2){thenpc.ship.shieldregen = 999;}
+	if (action==3){thenpc.ship.s = 999;}
+	}
+
+var kpdamage = new Virtualkey(0,"Damage Up",50,60);//constructor(key,label,x,y){
+var kptimer = new Virtualkey(1,"Timer Up",200,60);//constructor(key,label,x,y){
+var kpspeed = new Virtualkey(2,"Speed Up",350,60);//constructor(key,label,x,y){
+var kpboom = new Virtualkey(3,"Blast Up",500,60);//constructor(key,label,x,y){
+var kpn = new Virtualkey(4,"Number Up",650,60);//constructor(key,label,x,y){
+var kptype  = new Virtualkey(5,"Change Type",800,60);//constructor(key,label,x,y){
+var kddamage = new Virtualkey(6,"Damage Down",50,100);//constructor(key,label,x,y){
+var kdtimer = new Virtualkey(7,"Timer Down",200,100);//constructor(key,label,x,y){
+var kdspeed = new Virtualkey(8,"Speed Down",350,100);//constructor(key,label,x,y){
+var kdboom = new Virtualkey(9,"Blast Down",500,100);//constructor(key,label,x,y){
+var kdn = new Virtualkey(10,"Number Down",650,100);//constructor(key,label,x,y){
+var blastermenukeys =[kpdamage,kptimer,kpspeed,kpboom,kpn,kptype,kddamage,kdtimer,kdspeed,kdboom,kdn];
+
+function blasteractions(action,thenpc){
+	console.log("itried");
+	var theblaster = thenpc.blasters[0]
+	switch(action){
+		case 0:
+			theblaster.plusdamage();
+			break;
+		case 1:
+			theblaster.plustimer();
+			break;
+		case 2:
+			theblaster.plusspeed();
+			break;
+		case 3:
+			theblaster.plusboom();
+			break;
+		case 4:
+			theblaster.plusn();
+			break;
+		case 5:
+			if (theblaster.type == "plain"){
+				theblaster.type = "fixedspread";
+				theblaster.special1 = 0.125*Math.PI/2+0.375*Math.random()*Math.PI/2;//Default spread 
+				//theblaster.special2 = this.npcs[botindex].blasters[0].special1/2
+				}
+			else if (theblaster.type == "fixedspread"){
+				theblaster.type = "multiplex";
+				}
+			else if (theblaster.type == "multiplex"){
+				theblaster.type = "plain";
+				}
+			break;
+		case 6:
+			if (theblaster.dtier>0){
+				theblaster.dtier--;
+				theblaster.hurt=theblaster.bhurt+theblaster.uphurt*theblaster.dtier;
+				theblaster.levelcalc()
+				}
+			break;
+		case 7:
+			if (theblaster.ttier>0){
+				theblaster.ttier--;
+				theblaster.timer=theblaster.btimer+theblaster.uptimer*theblaster.ttier;
+				theblaster.levelcalc()
+				}
+			break;
+		case 8:
+			if (theblaster.stier>0){
+				theblaster.stier--;
+				theblaster.speed=theblaster.bspeed+theblaster.upspeed*theblaster.stier;
+				theblaster.levelcalc()
+				}
+			break;
+		case 9:
+			if (theblaster.btier>0){
+				theblaster.btier--;
+				theblaster.boom=theblaster.bboom+theblaster.upboom*theblaster.btier;
+				theblaster.levelcalc()
+				}
+			break;
+		case 10:
+			if (theblaster.ntier>0){
+				theblaster.ntier--;
+				theblaster.n=theblaster.bn+theblaster.upn*theblaster.ntier;
+				theblaster.levelcalc()
+				}
+			break;
+		}
+//	if (action==5){theblaster.upboom();}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+var k11=new Virtualkey(0,"AI Type",50,60);//constructor(key,label,x,y){
+var k12=new Virtualkey(1,"Home Planet",200,60);//constructor(key,label,x,y){
+var k13=new Virtualkey(2,"Target Planets",350,60);//constructor(key,label,x,y){
+var k14=new Virtualkey(3,"Target NPCs",500,60);//constructor(key,label,x,y){
+var k15=new Virtualkey(3,"Target Players",650,60);//constructor(key,label,x,y){
+
+var aimenukeys =[k11,k12,k13,k14];
+function aiactions(action,thenpc){
+	if (action==0){thenpc.ship.maxhp = 999;;}
+	if (action==1){thenpc.ship.maxshield=999;}
+	if (action==2){thenpc.ship.shieldregen = 999;}
+	if (action==3){thenpc.ship.s = 999;}
+	}
+	
+var submenus = [appearancemenukeys,shipmenukeys,blastermenukeys,aimenukeys];
+var submenuactions = [appearanceactions,shipactions,blasteractions,aiactions]
+// declare global variables/////////////////////////////////////////////////
+var mytime = Date.now();
+var FPS = 60;
+setInterval(update, 1000 / FPS);// set up interval (game loop)
+var canvas, context;
+canvas = document.getElementById("gameCanvas"); //canvas is the draw sauce.
+canvas.style.cursor = "crosshair";
+context = canvas.getContext("2d");
+//context.canvas.width  = window.innerWidth-24; //This overrides the 1600x900 established in html.
+//context.canvas.height = window.innerHeight-24;
+var windowmousexoffset = -8;
+var windowmouseyoffset = -8;
+var fullscreenmousexoffset = -12;
+var fullscreenmouseyoffset = -68;
+var mdx = 0;
+var mdy = 0;
+var selectedpoint = -1;
+var selectedmdx = 0;
+var selectedmdy = 0;
+var selectedtime = 0;
+var mousestate = 0;
+var mode = 0; //0 for appearance, 1 ship properties, 2 blaster properties, 3 behavior properties
+//mississippi
+//mississippi institute special science in space service inventions pioneering properties incorporated.
+/* When the openFullscreen() function is executed, open the video in fullscreen.
+Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */
+function openFullscreen() {
+  if (canvas.requestFullscreen) {
+    canvas.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    canvas.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    canvas.msRequestFullscreen();
+  }
+}
+
+//var vkeys = allvkeys(canvas.width,canvas.height);
+var time = 0; //Count of frames elapsed in game time.  Used to track in-game time related stuff.
+
+//var allcargos = bhcargos();
+function pointingat(objdir,dir,distance,size){ //are you pointing at a thing?
+	var as = Math.atan2(size,distance); //how much angle does the thing occupy?
+	var dd = dir - objdir; //How much off the actual direction are you pointing?
+	while (dd > Math.PI){dd = dd - 2*Math.PI;} //This reduces the angle difference to within +- Math.PI
+	while (dd < -1*Math.PI){dd = dd + 2*Math.PI;}
+	while (as > Math.PI){as = as - 2*Math.PI;} //This reduces the angle difference to within +- Math.PI
+	while (as < -1*Math.PI){as = as + 2*Math.PI;}
+	if ((dd<as)&&(dd>-1*as)){ return 1;	}//-1*anglesize < deltadir < anglesize
+	else {return 0;}
+	}
+var editnpc = new NPC(0);
+var editingship = editnpc.ship;
+//editingship.shield = 1;
+editnpc.ship.hp = 0;
+editnpc.ship.d = Math.PI;
+editnpc.ship.s = 256;
+
+var newradii = [];
+var newtheta = [];
+///GAMELOOP/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////update function this is the game loop bruh////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function update() {
+	var truetime = Date.now();
+  	var servertime = mytime+Math.floor(time*1000/FPS);
+  	if (servertime<truetime){
+	time++;
+	context.fillStyle = "black";//Background is black
+	context.fillRect(0, 0, canvas.width, canvas.height); //rectangle the size of the canvas.
+	var shipyoffset = 0;
+	if (mode>0){shipyoffset=-200;}
+	editnpc.ship.drawship(0,shipyoffset);
+	
+	if (mode==2){
+		editnpc.blasters[0].drawstats2(64,150,"white","red");
+		context.fillStyle = "white";
+		context.fillText(editnpc.blasters[0].type,800,150);
+		context.fillText(editnpc.blasters[0].level,800,250);
+		}
+	if (newradii.length>0){
+		editnpc.ship.polyradius = [256]
+		editnpc.ship.polytheta = [0];
+		var i=0;
+		while(i<newradii.length){
+			editnpc.ship.polyradius.push(newradii[i]);
+			editnpc.ship.polytheta.push(newtheta[i]);
+			i++;
+			}
+		editnpc.ship.polyradius.push(256)
+		editnpc.ship.polytheta.push(Math.PI);
+		
+		var i=newradii.length;
+		while (i>0){
+			i--;
+			editnpc.ship.polyradius.push(newradii[i]);
+			editnpc.ship.polytheta.push(newtheta[i]*-1);
+			}
+		normalizepoly( [editingship.polytheta,editingship.polyradius] );
+		}
+	if (selectedpoint>=0){
+		var px = newradii[selectedpoint]*Math.cos(newtheta[selectedpoint]+Math.PI)+canvas.width/2;
+		var py = newradii[selectedpoint]*Math.sin(newtheta[selectedpoint]+Math.PI)+canvas.height/2;
+		context.beginPath();
+		context.strokeStyle = "yellow"; //sets planet color
+		context.arc(px, py, 8, 0, 2 * Math.PI, false); //draws the circle
+		context.lineWidth = 2; //circle is thicc
+		context.stroke();	//ok now actually draw it.
+		}
+	var i=0;
+	while(i<newradii.length){
+		var px = newradii[i]*Math.cos(newtheta[i]+Math.PI)+canvas.width/2;
+		var py = newradii[i]*Math.sin(newtheta[i]+Math.PI)+canvas.height/2;
+		context.beginPath();
+		context.strokeStyle = "yellow"; //sets planet color
+		context.arc(px, py, 4, 0, 2 * Math.PI, false ); //draws the circle 
+		context.lineWidth = 2; //circle is thicc
+		context.stroke();	//ok now actually draw it.
+		i++;
+		}
+	
+	var i=0;
+	while (i<mainmenukeys.length){
+		mainmenukeys[i].draw();
+		i++;
+		}
+	var i=0;
+	while(i<submenus[mode].length){
+		submenus[mode][i].draw();
+		i++;
+		}
+	context.beginPath()
+	context.rect(24+150*mode,16,164,36);
+	context.stroke();
+	//		context.font = '20px Ariel';
+	//		context.fillStyle = "red";
+	//		context.fillText("No targets in range", canvas.width-160, 24);
+		
+		
+		
+if(time%2==0){
+    var truetime = Date.now();
+    var servertime = mytime+Math.floor(time*1000/FPS);
+    if (time%(FPS*2)==0){console.log("True time: "+truetime+"Server time: "+servertime+" dt: "+(truetime-servertime));}
+    var lagging = truetime-(servertime+1000/FPS);
+	if (lagging>1000){
+		//console.log("Lagging too far, not correcting "+(truetime-servertime)+" ms");
+		}
+	else if (lagging>0){
+	  update();
+      //console.log("Running extra frame because server is behind "+(truetime-servertime)+" ms");
+      }
+    }
+
+  }else{
+	//console.log("Extra loop skipped because server is ahead "+(servertime-truetime)+"ms");
+	}
+}
+</script>
+</body>
+<input type="button" id="dwn-btn" value="Download latest save"/>
+ <label for="input-file">[K] saves your game [L] loads uploaded save file. </label><br>
+ <input type="file" id="input-file">
+ <textarea id="content-target"></textarea>
+<script>
+	document.getElementById('input-file')
+  .addEventListener('change', getFile)
+
+function getFile(event) {
+	const input = event.target
+	//console.log(event.target);
+  if ('files' in input && input.files.length > 0) {
+	  placeFileContent(
+      document.getElementById('content-target'),
+      input.files[0])
+  }
+}
+function placeFileContent(target, file) {
+	readFileContent(file).then(content => {
+  	target.value = content
+	  loadgamestring = content;
+  }).catch(error => console.log(error))
+}
+
+function readFileContent(file) {
+	const reader = new FileReader()
+  return new Promise((resolve, reject) => {
+    reader.onload = event => resolve(event.target.result)
+    reader.onerror = error => reject(error)
+    reader.readAsText(file)
+  })
+}
+</script>
+
+</html>
