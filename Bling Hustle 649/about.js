@@ -1,0 +1,3 @@
+var abouttext = "Bling Hustle is an open world space fantasy capitalism simulator including procedurally generated content and educational hooks.  Bling Hustle has 20 weapons with millions of possible upgrade combinations, and over 70 systems to explore, most of which change every time you play.  A mouse and keyboard are required, and 1080p resolution is recommended.  The latest live version is hosted at https://kanethemediocre.github.io/ .  Bling Hustle is a free open source game written in javascript by Andrew Kane.  You can support Bling Hustle at https://www.patreon.com/KaneTheMediocre";
+
+
